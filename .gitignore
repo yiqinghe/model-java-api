@@ -1,0 +1,5 @@
+target/
+.idea/
+model-api-client.iml
+metastore_db/
+derby.log
