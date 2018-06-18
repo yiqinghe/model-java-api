@@ -206,7 +206,7 @@ public class Model {
                 protected void done() {
                     try {
                         mapForTestHook.put("buyFuture.done","true");
-                        log.error("buyFuture.done():{}" , get());
+                        log.info("buyFuture.done():{}" , get());
                     } catch (InterruptedException e) {
                         log.error("buyFuture exception {}",e);
                     } catch (ExecutionException e) {
@@ -220,7 +220,7 @@ public class Model {
                 protected void done() {
                     try {
                         mapForTestHook.put("sellFuture.done","true");
-                        log.error("sellFuture.done():{}" , get());
+                        log.info("sellFuture.done():{}" , get());
                     } catch (InterruptedException e) {
                         log.error("sellFuture exception {}",e);
                     } catch (ExecutionException e) {
@@ -250,8 +250,6 @@ public class Model {
                 log.error("Future TimeoutException get {}",e);
             }
         }
-
-
 
         /**
          * 查询买订单状态

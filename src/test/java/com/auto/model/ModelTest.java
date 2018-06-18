@@ -237,26 +237,15 @@ public class ModelTest {
     @Test
     public void testTaskCreateOrder() throws InterruptedException {
 
-        Api api = mock(Api.class);
-        model.api=api;
         Order orderInputBuy = new Order(model.symbol,TradeType.buy,"3000","0.01");
-        Order orderBuy = new Order(model.symbol,TradeType.buy,"3000","0.01");
-        orderBuy.orderId="00000001";
-        orderBuy.tradeStatus=TradeStatus.trading;
-        when(api.buy(orderInputBuy)).thenReturn(orderBuy);
-        Order orderInputSell = new Order(model.symbol,TradeType.buy,"3010","0.01");
-        Order orderSell = new Order(model.symbol,TradeType.buy,"3010","0.01");
-        orderSell.orderId="00000002";
-        orderSell.tradeStatus=TradeStatus.trading;
-        when(api.sell(orderInputSell)).thenReturn(orderSell);
-
+        Order orderInputSell = new Order(model.symbol,TradeType.sell,"3000","0.01");
+        model.taskForTestHook.orderBuy=orderInputBuy;
+        model.taskForTestHook.orderSell=orderInputSell;
         model.taskForTestHook.createOrder();
-
-        // Assert.assertTrue(model.taskForTestHook.orderBuy!=null);
-        // Assert.assertTrue(model.taskForTestHook.orderSell!=null);
-
-
-
+        Assert.assertTrue(model.taskForTestHook.orderBuy!=null);
+        Assert.assertTrue(model.taskForTestHook.orderSell!=null);
+        Assert.assertTrue(model.taskForTestHook.mapForTestHook.get("buyFuture.done").equals("true"));
+        Assert.assertTrue(model.taskForTestHook.mapForTestHook.get("sellFuture.done").equals("true"));
     }
 
 }

@@ -21,12 +21,18 @@ public class ApiDemo implements Api<Object> {
 
     @Override
     public Order buy(Order order) {
-        return null;
+        Order orderBuy = new Order(order.symbol,TradeType.buy,"3000","0.01");
+        orderBuy.orderId="00000001";
+        orderBuy.tradeStatus=TradeStatus.trading;
+        return orderBuy;
     }
 
     @Override
     public Order sell(Order order) {
-        return null;
+        Order orderSell = new Order(order.symbol,TradeType.sell,"3010","0.01");
+        orderSell.orderId="00000002";
+        orderSell.tradeStatus=TradeStatus.trading;
+        return orderSell;
     }
 
     @Override
