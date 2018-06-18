@@ -7,7 +7,9 @@ import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.*;
 
 /**
@@ -105,22 +107,28 @@ public class Model {
     }
 
 
+    // 测试钩子
+    public Task taskForTestHook = new Task();
+
     class Task extends Thread {
         private final Object listLockB = new Object();
         private final Object listLockS = new Object();
 
-        private Order orderSell;
-        private Order orderBuy;
+        public Order orderSell;
+        public Order orderBuy;
 
 
-        Element elementB = null;
-        Element elementS = null;
+        public Element elementB = null;
+        public Element elementS = null;
 
         // 交易发起时间
-        private long tradeTime;
+        public long tradeTime;
 
         // 避免发单后，查询频率太快，至少等多少ms后查询
         private long queryIntervalMillsec=200;
+
+        // 测试钩子
+        public Map<String,String> mapForTestHook = new HashMap<>();
 
 
         public void run() {
@@ -140,19 +148,20 @@ public class Model {
                     TradeContext tradeContext = api.buildTradeContext(depthData);
                     // 判断是否可以交易
                     if(tradeContext.canTrade){
-                        int i = 0;
+                        int index = 0;
                         synchronized (listLockB) {
+                            // 取出可以交易的交易对（状态init）
                             for (Element element : tradingList_Buy) {
                                 if (element.tradeStatus == TradeStatus.init) {
                                     elementB = element;
                                     elementB.tradeStatus = TradeStatus.trading;
                                     synchronized (listLockS) {
-                                        elementS = tradingList_Sell.get(i);
+                                        elementS = tradingList_Sell.get(index);
                                         elementS.tradeStatus = TradeStatus.trading;
                                     }
                                     break;
                                 }
-                                i++;
+                                index++;
                             }
                         }
 
@@ -176,7 +185,7 @@ public class Model {
                 try {
                     Thread.sleep(100);
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    log.error("sleep InterruptedException  {}",e);
                 }
             }
         }
@@ -185,6 +194,7 @@ public class Model {
          *  发起交易，并发执行
          */
         public void createOrder(){
+            log.info("createOrder");
             tradeTime = System.currentTimeMillis();
 
             BuyTask buyTask = new BuyTask(api,orderBuy);
@@ -195,7 +205,8 @@ public class Model {
                 @Override
                 protected void done() {
                     try {
-                        System.out.println("buyFuture.done():" + get());
+                        mapForTestHook.put("buyFuture.done","true");
+                        log.error("buyFuture.done():{}" , get());
                     } catch (InterruptedException e) {
                         log.error("buyFuture exception {}",e);
                     } catch (ExecutionException e) {
@@ -208,7 +219,8 @@ public class Model {
                 @Override
                 protected void done() {
                     try {
-                        System.out.println("sellFuture.done():" + get());
+                        mapForTestHook.put("sellFuture.done","true");
+                        log.error("sellFuture.done():{}" , get());
                     } catch (InterruptedException e) {
                         log.error("sellFuture exception {}",e);
                     } catch (ExecutionException e) {
@@ -218,17 +230,24 @@ public class Model {
             };
 
 
-            executor.execute(buyFuture);
-            executor.execute(sellFuture);
+            executor.submit(buyFuture);
+            executor.submit(sellFuture);
 
             try {
+                log.info("before future get");
+
                 // 阻塞获取返回结果
-                orderBuy = buyFuture.get();
-                orderSell = sellFuture.get();
+                orderBuy = buyFuture.get(10000,TimeUnit.MICROSECONDS);
+                orderSell = sellFuture.get(10000,TimeUnit.MICROSECONDS);
+
+                log.info("after future get");
+
             } catch (InterruptedException e) {
-                log.error("buyFuture exception get {}",e);
+                log.error("Future InterruptedException get {}",e);
             } catch (ExecutionException e) {
-                log.error("sellFuture exception get {}",e);
+                log.error("Future ExecutionException get {}",e);
+            } catch (TimeoutException e) {
+                log.error("Future TimeoutException get {}",e);
             }
         }
 
@@ -237,7 +256,7 @@ public class Model {
         /**
          * 查询买订单状态
          */
-        public void queryBuyOrderStatus(){
+        public Order queryBuyOrderStatus(){
             long now = System.currentTimeMillis();
             if (orderBuy != null) {
                 if(now > tradeTime + queryIntervalMillsec){
@@ -256,22 +275,25 @@ public class Model {
                         // 超过最长等待时效
                         if (now > tradeTime + Config.waitOrderDoneMillSec) {
                             // 取消订单
-                            if (!elementB.isCanceling) {
+                            if (!elementB.isCanceling()) {
+                                mapForTestHook.put("isCancelingForBuy","true");
                                 log.warn("cancel buy order");
                                 api.cancel(orderBuy);
-                                elementB.isCanceling = true;
+                                elementB.setCanceling(true);
                             }else{
+                                mapForTestHook.put("isCancelingForBuy","false");
                                 log.warn("canceling buy order");
                             }
                         }
                     }
                 }
             }
+            return orderBuy;
         }
         /**
          * 查询卖订单状态
          */
-        public void querySellOrderStatus(){
+        public Order querySellOrderStatus(){
             long now = System.currentTimeMillis();
             if (orderSell != null) {
                 if(now > tradeTime + queryIntervalMillsec){
@@ -290,11 +312,13 @@ public class Model {
                         // 超过最长等待时效
                         if (now > tradeTime + Config.waitOrderDoneMillSec) {
                             // 取消订单
-                            if (!elementS.isCanceling) {
+                            if (!elementS.isCanceling()) {
+                                mapForTestHook.put("isCancelingForSell","true");
                                 log.warn("cancel sell order");
                                 api.cancel(orderSell);
-                                elementS.isCanceling = true;
+                                elementS.setCanceling(true);
                             }else{
+                                mapForTestHook.put("isCancelingForSell","false");
                                 log.warn("canceling sell order");
                             }
                         }
@@ -302,6 +326,7 @@ public class Model {
                     }
                 }
             }
+            return orderSell;
         }
     }
 
@@ -321,6 +346,7 @@ public class Model {
         // 返回异步任务的执行结果
         @Override
         public Order call() throws Exception {
+            log.info("buytask call");
             return api.buy(order);
         }
     }

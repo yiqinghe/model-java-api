@@ -84,39 +84,6 @@ public class ModelTest {
         model.periodStart();
         Assert.assertTrue(model.tradingList_Buy.size()==model.tradingList_Sell.size());
     }
-    @Test
-    public void testTask() throws InterruptedException {
-
-        Api api = mock(Api.class);
-
-        model.api=api;
-
-        Balance balance = new Balance(Currency.eth);
-        balance.amount="2";
-        when(api.getBalance(Currency.eth)).thenReturn(balance);
-
-        Balance balanceUsdt = new Balance(Currency.usdt);
-        balanceUsdt.amount="10000";
-        when(api.getBalance(Currency.usdt)).thenReturn(balance);
-
-
-        DepthData depthData = new DepthData();
-        depthData.setAsk_1_price("3000");
-        depthData.setBid_1_price("2990");
-
-        when(api.getDepthData(model.symbol)).thenReturn(depthData);
-
-        TradeContext tradeContext = new TradeContext();
-        tradeContext.canTrade=false;
-
-        when(api.buildTradeContext(depthData)).thenReturn(tradeContext);
-
-
-      // model.periodStart();
-
-
-        Assert.assertTrue(model.tradingList_Buy.size()==model.tradingList_Sell.size());
-    }
 
     @Test
     public void testApi() throws InterruptedException {
@@ -151,4 +118,163 @@ public class ModelTest {
         Assert.assertTrue(tradeContext.canTrade==false);
 
     }
+
+    @Test
+    public void testQueryBuyOrderStatus(){
+        Api api = mock(Api.class);
+        model.api=api;
+
+        Order orderInput = new Order(model.symbol,TradeType.buy,"3000","0.01");
+        Order order = new Order(model.symbol,TradeType.buy,"3000","0.01");
+        order.orderId="00000001";
+        order.tradeStatus=TradeStatus.trading;
+        when(api.queryOrder(orderInput)).thenReturn(order);
+
+        model.taskForTestHook.tradeTime=10000;
+        model.taskForTestHook.orderBuy=orderInput;
+        model.taskForTestHook.elementB=new Element(0,model.symbol,TradeType.buy);
+        model.taskForTestHook.queryBuyOrderStatus();
+        Assert.assertTrue(model.taskForTestHook.mapForTestHook.get("isCancelingForBuy").equals("true"));
+        Assert.assertTrue(model.taskForTestHook.orderBuy.orderId.equals("00000001"));
+        Assert.assertTrue(model.taskForTestHook.elementB.isCanceling());
+
+        model.taskForTestHook.orderBuy=orderInput;
+        model.taskForTestHook.elementB=new Element(0,model.symbol,TradeType.buy);
+        model.taskForTestHook.elementB.setCanceling(true);
+        model.taskForTestHook.queryBuyOrderStatus();
+        Assert.assertTrue(model.taskForTestHook.mapForTestHook.get("isCancelingForBuy").equals("false"));
+        Assert.assertTrue(model.taskForTestHook.elementB.isCanceling());
+
+
+        model.taskForTestHook.tradeTime=System.currentTimeMillis()+100000000;
+        model.taskForTestHook.orderBuy=orderInput;
+        model.taskForTestHook.elementB=new Element(0,model.symbol,TradeType.buy);
+        model.taskForTestHook.queryBuyOrderStatus();
+        Assert.assertTrue(model.taskForTestHook.orderBuy.orderId==null);
+        Assert.assertFalse(model.taskForTestHook.elementB.isCanceling());
+
+
+    }
+    @Test
+    public void testQueryBuyOrderStatus2(){
+        Api api = mock(Api.class);
+        model.api=api;
+
+        Order orderInput = new Order(model.symbol,TradeType.buy,"3000","0.01");
+        Order order = new Order(model.symbol,TradeType.buy,"3000","0.01");
+        order.orderId="00000001";
+        order.tradeStatus=TradeStatus.trading;
+        when(api.queryOrder(orderInput)).thenReturn(order);
+
+        model.taskForTestHook.tradeTime=System.currentTimeMillis()-10;
+        model.taskForTestHook.orderBuy=orderInput;
+        model.taskForTestHook.elementB=new Element(0,model.symbol,TradeType.buy);
+        model.taskForTestHook.queryBuyOrderStatus();
+        Assert.assertTrue(model.taskForTestHook.mapForTestHook.get("isCancelingForBuy")==null);
+
+        order.tradeStatus=TradeStatus.done;
+        order.excutedAmount="0.01";
+        when(api.queryOrder(orderInput)).thenReturn(order);
+
+        model.taskForTestHook.tradeTime=10000;
+        model.taskForTestHook.orderBuy=orderInput;
+        model.taskForTestHook.elementB=new Element(0,model.symbol,TradeType.buy);
+        model.taskForTestHook.queryBuyOrderStatus();
+        Assert.assertTrue(model.taskForTestHook.mapForTestHook.get("isCancelingForBuy")==null);
+        Assert.assertTrue(model.taskForTestHook.orderBuy==null);
+        Assert.assertTrue(model.taskForTestHook.elementB==null);
+    }
+
+
+    @Test
+    public void testQuerySellOrderStatus(){
+        Api api = mock(Api.class);
+        model.api=api;
+
+        Order orderInput = new Order(model.symbol,TradeType.sell,"3000","0.01");
+        Order order = new Order(model.symbol,TradeType.sell,"3000","0.01");
+        order.orderId="00000001";
+        order.tradeStatus=TradeStatus.trading;
+        when(api.queryOrder(orderInput)).thenReturn(order);
+
+        model.taskForTestHook.tradeTime=10000;
+        model.taskForTestHook.orderSell=orderInput;
+        model.taskForTestHook.elementS=new Element(0,model.symbol,TradeType.sell);
+        model.taskForTestHook.querySellOrderStatus();
+        Assert.assertTrue(model.taskForTestHook.mapForTestHook.get("isCancelingForSell").equals("true"));
+        Assert.assertTrue(model.taskForTestHook.orderSell.orderId.equals("00000001"));
+        Assert.assertTrue(model.taskForTestHook.elementS.isCanceling());
+
+        model.taskForTestHook.orderSell=orderInput;
+        model.taskForTestHook.elementS=new Element(0,model.symbol,TradeType.sell);
+        model.taskForTestHook.elementS.setCanceling(true);
+        model.taskForTestHook.querySellOrderStatus();
+        Assert.assertTrue(model.taskForTestHook.mapForTestHook.get("isCancelingForSell").equals("false"));
+        Assert.assertTrue(model.taskForTestHook.elementS.isCanceling());
+
+
+        model.taskForTestHook.tradeTime=System.currentTimeMillis()+100000000;
+        model.taskForTestHook.orderSell=orderInput;
+        model.taskForTestHook.elementS=new Element(0,model.symbol,TradeType.sell);
+        model.taskForTestHook.querySellOrderStatus();
+        Assert.assertTrue(model.taskForTestHook.orderSell.orderId==null);
+        Assert.assertFalse(model.taskForTestHook.elementS.isCanceling());
+
+
+    }
+    @Test
+    public void testQuerySellOrderStatus2(){
+        Api api = mock(Api.class);
+        model.api=api;
+
+        Order orderInput = new Order(model.symbol,TradeType.buy,"3000","0.01");
+        Order order = new Order(model.symbol,TradeType.buy,"3000","0.01");
+        order.orderId="00000001";
+        order.tradeStatus=TradeStatus.trading;
+        when(api.queryOrder(orderInput)).thenReturn(order);
+
+        model.taskForTestHook.tradeTime=System.currentTimeMillis()-10;
+        model.taskForTestHook.orderSell=orderInput;
+        model.taskForTestHook.elementS=new Element(0,model.symbol,TradeType.sell);
+        model.taskForTestHook.querySellOrderStatus();
+        Assert.assertTrue(model.taskForTestHook.mapForTestHook.get("isCancelingForSell")==null);
+
+        order.tradeStatus=TradeStatus.done;
+        order.excutedAmount="0.01";
+        when(api.queryOrder(orderInput)).thenReturn(order);
+
+        model.taskForTestHook.tradeTime=10000;
+        model.taskForTestHook.orderSell=orderInput;
+        model.taskForTestHook.elementS=new Element(0,model.symbol,TradeType.sell);
+        model.taskForTestHook.querySellOrderStatus();
+        Assert.assertTrue(model.taskForTestHook.mapForTestHook.get("isCancelingForSell")==null);
+        Assert.assertTrue(model.taskForTestHook.orderSell==null);
+        Assert.assertTrue(model.taskForTestHook.elementS==null);
+    }
+
+    @Test
+    public void testTaskCreateOrder() throws InterruptedException {
+
+        Api api = mock(Api.class);
+        model.api=api;
+        Order orderInputBuy = new Order(model.symbol,TradeType.buy,"3000","0.01");
+        Order orderBuy = new Order(model.symbol,TradeType.buy,"3000","0.01");
+        orderBuy.orderId="00000001";
+        orderBuy.tradeStatus=TradeStatus.trading;
+        when(api.buy(orderInputBuy)).thenReturn(orderBuy);
+        Order orderInputSell = new Order(model.symbol,TradeType.buy,"3010","0.01");
+        Order orderSell = new Order(model.symbol,TradeType.buy,"3010","0.01");
+        orderSell.orderId="00000002";
+        orderSell.tradeStatus=TradeStatus.trading;
+        when(api.sell(orderInputSell)).thenReturn(orderSell);
+
+        model.taskForTestHook.createOrder();
+
+        // Assert.assertTrue(model.taskForTestHook.orderBuy!=null);
+        // Assert.assertTrue(model.taskForTestHook.orderSell!=null);
+
+
+
+    }
+
 }
