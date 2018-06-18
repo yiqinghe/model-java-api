@@ -62,8 +62,8 @@ public class Model {
         tradingList_Buy.clear();;
         tradingList_Sell.clear();
 
-        balanceAtStart_Target = api.getBalance(Currency.eth);
-        balanceAtStart_Base = api.getBalance(Currency.usdt);
+        balanceAtStart_Target = api.getBalance(symbol.targetCurrency);
+        balanceAtStart_Base = api.getBalance(symbol.baseCurrency);
 
         BigDecimal each = pool_Buy.amount.divide(new BigDecimal(Config.quota));
 
@@ -92,8 +92,8 @@ public class Model {
         while(!isFinish){
             Thread.sleep(10);
         }
-        balanceAtEnd_Target = api.getBalance(Currency.eth);
-        balanceAtEnd_Base = api.getBalance(Currency.usdt);
+        balanceAtEnd_Target = api.getBalance(symbol.targetCurrency);
+        balanceAtEnd_Base = api.getBalance(symbol.baseCurrency);
 
 
         QuantitativeResult quantitativeResult =
