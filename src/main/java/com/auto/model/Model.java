@@ -135,8 +135,8 @@ public class Model {
             while (true) {
                 if (orderBuy != null || orderSell != null) {
                     // 查询订单状态
-                    queryBuyOrderStatus();
-                    querySellOrderStatus();
+                    orderBuy = queryBuyOrderStatus();
+                    orderSell = querySellOrderStatus();
 
                     try {
                         Thread.sleep(100);
