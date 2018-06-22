@@ -20,7 +20,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
 /**
- * Created by caigaonian870 on 18/6/21.
+ * Created by gof on 18/6/21.
  */
 public class Util {
     private static final Logger log = LoggerFactory.getLogger(Util.class);

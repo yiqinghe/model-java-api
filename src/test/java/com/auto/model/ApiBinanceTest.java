@@ -11,7 +11,7 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 /**
- * Created by caigaonian870 on 18/6/19.
+ * Created by gof on 18/6/19.
  */
 public class ApiBinanceTest {
     @Test

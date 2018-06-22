@@ -3,7 +3,7 @@ package com.auto.trade.entity;
 import java.util.Date;
 
 /**
- * Created by caigaonian870 on 18/1/20.
+ * Created by gof on 18/1/20.
  */
  public interface Kline {
     Integer getId();

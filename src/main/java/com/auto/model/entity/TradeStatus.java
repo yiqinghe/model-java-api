@@ -1,7 +1,7 @@
 package com.auto.model.entity;
 
 /**
- * Created by caigaonian870 on 18/6/17.
+ * Created by gof on 18/6/17.
  * 交易状态
  */
 public enum TradeStatus {

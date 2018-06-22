@@ -1,7 +1,7 @@
 package com.auto.trade.response;
 
 /**
- * Created by caigaonian870 on 18/2/10.
+ * Created by gof on 18/2/10.
  */
 public class AccountResponse {
     private String btc;

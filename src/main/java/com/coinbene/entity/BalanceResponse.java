@@ -3,7 +3,7 @@ package com.coinbene.entity;
 import java.util.List;
 
 /**
- * Created by caigaonian870 on 18/6/21.
+ * Created by gof on 18/6/21.
  */
 public class BalanceResponse {
 

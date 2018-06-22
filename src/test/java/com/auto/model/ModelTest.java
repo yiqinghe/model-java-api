@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 import static org.mockito.Mockito.*;
 
 /**
- * Created by caigaonian870 on 18/6/17.
+ * Created by gof on 18/6/17.
  */
 public class ModelTest {
 

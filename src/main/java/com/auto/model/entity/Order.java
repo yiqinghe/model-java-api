@@ -3,7 +3,7 @@ package com.auto.model.entity;
 import com.binance.api.client.domain.TimeInForce;
 
 /**
- * Created by caigaonian870 on 18/6/17.
+ * Created by gof on 18/6/17.
  */
 public class Order {
 

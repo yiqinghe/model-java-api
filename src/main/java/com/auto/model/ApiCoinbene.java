@@ -29,7 +29,7 @@ import java.util.Map;
 import static com.binance.api.client.domain.account.NewOrder.*;
 
 /**
- * Created by caigaonian870 on 18/6/18.
+ * Created by gof on 18/6/18.
  */
 public class ApiCoinbene implements Api<Object>{
     private static final Logger log = LoggerFactory.getLogger(ApiCoinbene.class);

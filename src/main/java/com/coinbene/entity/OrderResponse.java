@@ -1,7 +1,7 @@
 package com.coinbene.entity;
 
 /**
- * Created by caigaonian870 on 18/6/21.
+ * Created by gof on 18/6/21.
  */
 public class OrderResponse {
 

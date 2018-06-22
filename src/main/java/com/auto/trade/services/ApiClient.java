@@ -6,7 +6,7 @@ import com.binance.api.client.BinanceApiRestClient;
 import org.springframework.stereotype.Service;
 
 /**
- * Created by caigaonian870 on 18/1/28.
+ * Created by gof on 18/1/28.
  */
 @Service
 public class ApiClient {

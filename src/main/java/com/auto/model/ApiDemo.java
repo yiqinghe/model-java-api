@@ -7,7 +7,7 @@ import com.auto.trade.entity.OrderPrice;
 import java.math.BigDecimal;
 
 /**
- * Created by caigaonian870 on 18/6/17.
+ * Created by gof on 18/6/17.
  */
 public class ApiDemo implements Api<Object> {
 

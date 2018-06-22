@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by caigaonian870 on 18/6/17.
+ * Created by gof on 18/6/17.
  * 周期量化结果
  */
 public class QuantitativeResult {

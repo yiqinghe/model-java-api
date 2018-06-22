@@ -17,7 +17,7 @@ import javax.transaction.Transactional;
 import java.util.List;
 
 /**
- * Created by caigaonian870 on 17/12/11.
+ * Created by gof on 17/12/11.
  */
 @Service
 public class DataService<T extends Kline> {

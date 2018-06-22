@@ -7,7 +7,7 @@ import com.auto.trade.entity.OrderPrice;
 import java.math.BigDecimal;
 
 /**
- * Created by caigaonian870 on 18/6/17.
+ * Created by gof on 18/6/17.
  *
  * 子类实现这个接口，将数据喂给策略模型
  * 不管方式获取的，http也好，websocket也好，接口返回数据要够快。

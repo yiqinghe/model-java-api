@@ -3,7 +3,7 @@ package com.auto.model.entity;
 import java.math.BigDecimal;
 
 /**
- * Created by caigaonian870 on 18/6/17.
+ * Created by gof on 18/6/17.
  */
 public class Config {
     // 目标币的交易池大小

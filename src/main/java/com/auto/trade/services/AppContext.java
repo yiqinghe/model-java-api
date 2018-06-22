@@ -1,7 +1,7 @@
 package com.auto.trade.services;
 
 /**
- * Created by caigaonian870 on 18/6/18.
+ * Created by gof on 18/6/18.
  */
 public class AppContext {
     public static DataService dataService;

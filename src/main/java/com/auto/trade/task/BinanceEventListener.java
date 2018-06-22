@@ -29,7 +29,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 /**
- * Created by caigaonian870 on 18/1/13.
+ * Created by gof on 18/1/13.
  */
 @Component
 public class BinanceEventListener {

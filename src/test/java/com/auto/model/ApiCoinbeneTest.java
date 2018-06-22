@@ -7,7 +7,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * Created by caigaonian870 on 18/6/21.
+ * Created by gof on 18/6/21.
  */
 public class ApiCoinbeneTest {
     @Test

@@ -1,7 +1,7 @@
 package com.coinbene;
 
 /**
- * Created by caigaonian870 on 18/6/21.
+ * Created by gof on 18/6/21.
  */
 public class Api {
     public static String market_url = "http://api.coinbene.com/v1/market/";

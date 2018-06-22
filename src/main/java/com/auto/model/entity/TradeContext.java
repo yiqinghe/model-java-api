@@ -1,7 +1,7 @@
 package com.auto.model.entity;
 
 /**
- * Created by caigaonian870 on 18/6/17.
+ * Created by gof on 18/6/17.
  * 交易上下文，记录是否能发起交易，交易的价格
  */
 public class TradeContext {
