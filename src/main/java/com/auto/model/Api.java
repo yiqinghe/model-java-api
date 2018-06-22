@@ -1,7 +1,10 @@
 package com.auto.model;
 
-import com.auto.model.entity.DepthData;
+import com.auto.trade.entity.DepthData;
 import com.auto.model.entity.*;
+import com.auto.trade.entity.OrderPrice;
+
+import java.math.BigDecimal;
 
 /**
  * Created by caigaonian870 on 18/6/17.
@@ -27,18 +30,40 @@ public interface Api<T> {
     DepthData getDepthData(TradeSymbol symbol);
 
     /**
-     * 发起交易
+     * 获取实时价格
+     * @param symbol
+     * @return
+     */
+    OrderPrice getOrderPrice(TradeSymbol symbol);
+
+    /**
+     * 发起交易，限价单
      * @param order
      * @return
      */
     Order buy(Order order);
 
     /**
-     * 发起交易
+     * 发起交易，限价单
      * @param order
      * @return
      */
     Order sell(Order order);
+
+    /**
+     * 发起交易，市场单GTC
+     * @param order
+     * @return
+     */
+    Order buyMarket(Order order);
+
+    /**
+     * 发起交易，市场单
+     * @param order
+     * @return
+     */
+    Order sellMarket(Order order);
+
 
     /**
      * 取消订单
@@ -61,4 +86,17 @@ public interface Api<T> {
      * @return
      */
     TradeContext buildTradeContext(DepthData depthData);
+
+    /**
+     * 获取每次买单的目标币的交易数量
+     * @param originalTargetAmount
+     * @return
+     */
+    BigDecimal getTargetAmountForBuy(BigDecimal originalTargetAmount);
+    /**
+     * 获取每次卖单的目标币的交易数量
+     * @param originalTargetAmount
+     * @return
+     */
+    BigDecimal getTargetAmountForSell(BigDecimal originalTargetAmount);
 }

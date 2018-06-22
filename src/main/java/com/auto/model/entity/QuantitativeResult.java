@@ -31,4 +31,16 @@ public class QuantitativeResult {
         this.tradingList_Buy = tradingList_Buy;
         this.tradingList_Sell = tradingList_Sell;
     }
+
+    @Override
+    public String toString() {
+        return "QuantitativeResult{" +
+                "balanceAtStart_Target=" + balanceAtStart_Target +
+                ", balanceAtStart_Base=" + balanceAtStart_Base +
+                ", balanceAtEnd_Target=" + balanceAtEnd_Target +
+                ", balanceAtEnd_Base=" + balanceAtEnd_Base +
+                ", tradingList_Buy=" + tradingList_Buy +
+                ", tradingList_Sell=" + tradingList_Sell +
+                '}';
+    }
 }

@@ -1,5 +1,7 @@
 package com.auto.model.entity;
 
+import com.binance.api.client.domain.TimeInForce;
+
 /**
  * Created by caigaonian870 on 18/6/17.
  */
@@ -17,6 +19,8 @@ public class Order {
 
     public String amount;
 
+    public TimeInForce timeInForce=TimeInForce.GTC;
+
     // 实际成交数量
     public String excutedAmount;
 
@@ -25,5 +29,18 @@ public class Order {
         this.tradeType = tradeType;
         this.price = price;
         this.amount = amount;
+    }
+
+    @Override
+    public String toString() {
+        return "Order{" +
+                "orderId='" + orderId + '\'' +
+                ", symbol=" + symbol +
+                ", tradeType=" + tradeType +
+                ", tradeStatus=" + tradeStatus +
+                ", price='" + price + '\'' +
+                ", amount='" + amount + '\'' +
+                ", excutedAmount='" + excutedAmount + '\'' +
+                '}';
     }
 }

@@ -1,6 +1,8 @@
 package com.auto.model;
 
 import com.auto.model.entity.*;
+import com.auto.trade.entity.DepthData;
+import com.auto.trade.entity.OrderPrice;
 
 import java.math.BigDecimal;
 
@@ -20,6 +22,11 @@ public class ApiDemo implements Api<Object> {
     }
 
     @Override
+    public OrderPrice getOrderPrice(TradeSymbol symbol) {
+        return null;
+    }
+
+    @Override
     public Order buy(Order order) {
         Order orderBuy = new Order(order.symbol,TradeType.buy,"3000","0.01");
         orderBuy.orderId="00000001";
@@ -33,6 +40,16 @@ public class ApiDemo implements Api<Object> {
         orderSell.orderId="00000002";
         orderSell.tradeStatus=TradeStatus.trading;
         return orderSell;
+    }
+
+    @Override
+    public Order buyMarket(Order order) {
+        return null;
+    }
+
+    @Override
+    public Order sellMarket(Order order) {
+        return null;
     }
 
     @Override
@@ -55,7 +72,7 @@ public class ApiDemo implements Api<Object> {
         BigDecimal diff = sellPriceInDepth.subtract(buyPriceInDepth);
         BigDecimal rate = diff.divide(sellPriceInDepth,6,BigDecimal.ROUND_CEILING);
         BigDecimal rate2 = rate.divide(new BigDecimal(2),6,BigDecimal.ROUND_CEILING);
-        if (rate2.compareTo(Config.tradeFee) > 0) {
+        if (rate2.compareTo(Config.totalFeeRate) > 0) {
             tradeContext.canTrade=true;
             tradeContext.buyPrice=buyPriceInDepth.toString();
             tradeContext.sellPrice=sellPriceInDepth.toString();
@@ -63,4 +80,19 @@ public class ApiDemo implements Api<Object> {
         }
         return tradeContext;
     }
+
+    @Override
+    public BigDecimal getTargetAmountForBuy(BigDecimal originalTargetAmount) {
+        // 抵扣手续费,多买
+        BigDecimal targetAmount = originalTargetAmount.multiply(new BigDecimal(1).add(Config.baseFeeRate));
+        return targetAmount;
+    }
+
+    @Override
+    public BigDecimal getTargetAmountForSell(BigDecimal originalTargetAmount) {
+        // 普通模式，不用少卖，手续费是有base出。
+        return originalTargetAmount;
+    }
+
+
 }

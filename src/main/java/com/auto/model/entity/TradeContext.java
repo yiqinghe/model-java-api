@@ -11,4 +11,13 @@ public class TradeContext {
     public String buyPrice;
     // 发起交易的卖单价格
     public String sellPrice;
+
+    @Override
+    public String toString() {
+        return "TradeContext{" +
+                "canTrade=" + canTrade +
+                ", buyPrice='" + buyPrice + '\'' +
+                ", sellPrice='" + sellPrice + '\'' +
+                '}';
+    }
 }

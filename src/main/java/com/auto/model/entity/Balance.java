@@ -12,4 +12,12 @@ public class Balance {
     public Balance(Currency currency) {
         this.currency = currency;
     }
+
+    @Override
+    public String toString() {
+        return "Balance{" +
+                "currency=" + currency +
+                ", amount='" + amount + '\'' +
+                '}';
+    }
 }

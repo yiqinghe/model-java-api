@@ -11,8 +11,8 @@
   </parent>
 
 
-  <groupId>com.binance.api</groupId>
-  <artifactId>binance-api-client</artifactId>
+  <groupId>model.java.api</groupId>
+  <artifactId>model-java-client</artifactId>
   <version>1.0.0</version>
 
   <properties>

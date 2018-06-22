@@ -1,4 +1,4 @@
-package com.auto.model.entity;
+package com.auto.trade.entity;
 
 import javax.persistence.*;
 import java.util.Date;

@@ -5,7 +5,10 @@ package com.auto.model.entity;
  */
 public enum Currency {
     eth("eth"),
-    usdt("usdt");
+    usdt("usdt"),
+    bnb("bnb"),
+    coni("coni"),
+    xrp("xrp");
 
     private String currency;
 
@@ -15,5 +18,21 @@ public enum Currency {
 
     public String getCurrency() {
         return currency;
+    }
+
+    @Override
+    public String toString() {
+        return "Currency{" +
+                "currency='" + currency + '\'' +
+                '}';
+    }
+
+    public static Currency getCurrencyByStr(String currency){
+        for(Currency value: Currency.values()){
+            if(value.getCurrency().equals(currency)){
+                return value;
+            }
+        }
+        return null;
     }
 }

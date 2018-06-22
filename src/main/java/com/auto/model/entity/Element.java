@@ -36,4 +36,17 @@ public class Element {
         this.tradeSymbol = tradeSymbol;
         this.tradeType = tradeType;
     }
+
+    @Override
+    public String toString() {
+        return "Element{" +
+                "elementId=" + elementId +
+                ", tradeSymbol=" + tradeSymbol +
+                ", tradeType=" + tradeType +
+                ", tradeStatus=" + tradeStatus +
+                ", targetAmount=" + targetAmount +
+                ", excutedAmount=" + excutedAmount +
+                ", isCanceling=" + isCanceling +
+                '}';
+    }
 }

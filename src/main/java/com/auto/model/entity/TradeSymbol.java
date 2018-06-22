@@ -11,4 +11,12 @@ public class TradeSymbol {
         this.targetCurrency = targetCurrency;
         this.baseCurrency = baseCurrency;
     }
+
+    @Override
+    public String toString() {
+        return "TradeSymbol{" +
+                "targetCurrency=" + targetCurrency +
+                ", baseCurrency=" + baseCurrency +
+                '}';
+    }
 }
