@@ -22,11 +22,8 @@ public class ModelTest {
     public void buildModel(){
         Currency targetCurrency = Currency.eth;
         Currency baseCurrency = Currency.usdt;
-        Config.quota=100;
-        Config.tagetCurrencyPoolSize="1";
-        Config.baseCurrencyPoolSize="5000";
+        Config.quota="0.01";
         Config.concurrency=1;
-        Config.rateSec=1;
         Config.totalFeeRate =new BigDecimal("0.0015");
         Config.baseFeeRate = new BigDecimal("0.0005");
         Config.waitOrderDoneMillSec=5000;
@@ -58,7 +55,7 @@ public class ModelTest {
         Assert.assertTrue(model.tradingList_Buy.size()==model.tradingList_Sell.size());
 
         model.init();
-        Assert.assertTrue(model.tradingList_Buy.size()==100);
+        Assert.assertTrue(model.tradingList_Buy.size()==200);
         Element elementBuy =model.tradingList_Buy.get(0);
         Assert.assertTrue(elementBuy.tradeStatus== TradeStatus.init);
         Assert.assertTrue(elementBuy.tradeType== TradeType.buy);

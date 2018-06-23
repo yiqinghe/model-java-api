@@ -4,6 +4,7 @@ package com.auto.model.entity;
  * Created by gof on 18/6/17.
  */
 public enum Currency {
+    btc("btc"),
     eth("eth"),
     usdt("usdt"),
     bnb("bnb"),

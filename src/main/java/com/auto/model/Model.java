@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.validation.constraints.AssertTrue;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -37,11 +38,6 @@ public class Model {
     public Balance balanceAtEnd_Target;
     //量化周期结束U余额快照
     public Balance balanceAtEnd_Base;
-
-
-
-    private Pool pool_Buy = new Pool(TradeType.buy, symbol,new BigDecimal(Config.tagetCurrencyPoolSize));
-    private Pool pool_Sell = new Pool(TradeType.sell,symbol,new BigDecimal(Config.baseCurrencyPoolSize));
 
     // 	量化周期待买数组
     public List<Element> tradingList_Buy = new ArrayList<>();
@@ -75,15 +71,17 @@ public class Model {
         log.info("balanceAtStart_Target:{}",balanceAtStart_Target);
         log.info("balanceAtStart_Base:{}",balanceAtStart_Base);
 
-        if(new BigDecimal(balanceAtStart_Target.amount).compareTo(new BigDecimal(Config.tagetCurrencyPoolSize )) < 0
-                || new BigDecimal(balanceAtStart_Base.amount).compareTo(new BigDecimal(Config.baseCurrencyPoolSize )) < 0){
+        if(new BigDecimal(balanceAtStart_Target.amount).compareTo(new BigDecimal(Config.quota )) < 0){
             log.error("init not enough balance");
             return false;
         }
 
-        BigDecimal each = pool_Buy.amount.divide(new BigDecimal(Config.quota));
+        BigDecimal each = new BigDecimal(Config.quota).setScale(Config.amountScale, RoundingMode.HALF_UP);
 
-        for(int i = 0;i< Config.quota;i++){
+        int num = new BigDecimal(balanceAtStart_Target.amount).divide(new BigDecimal(Config.quota))
+                .setScale(Config.amountScale, RoundingMode.HALF_UP).intValue();
+        log.info("array num:{} >>>>>>>>>>>>>>>>>>>>>>>>",num);
+        for(int i = 0;i< num;i++){
             Element element = new Element(i,symbol,TradeType.buy);
             element.targetAmount = each;
             // 手续费抵扣
@@ -108,12 +106,12 @@ public class Model {
                     break;
                 }else{
                     log.warn("init fail >>>");
-                    Thread.sleep(10000);
+                    Thread.sleep(60000);
                 }
 
             }catch (Exception e){
                 log.warn("init fail {}",e);
-                Thread.sleep(10000);
+                Thread.sleep(60000);
             }
 
         }
@@ -174,6 +172,10 @@ public class Model {
             int count =0;
             while (true) {
                 try{
+//                    if ((orderBuy != null && orderSell == null) || (orderBuy == null && orderSell != null)) {
+//                        log.error("result:orderBuy and orderSell not consistent.orderBuy:{},orderSell:{}",orderBuy,orderSell);
+//                        Thread.sleep(60000);
+//                    }
                     if (orderBuy != null || orderSell != null) {
                         // 查询订单状态
                         orderBuy = queryBuyOrderStatus();
@@ -316,7 +318,7 @@ public class Model {
                 orderBuy = buyFuture.get(10,TimeUnit.SECONDS);
                 orderSell = sellFuture.get(10,TimeUnit.SECONDS);
 
-                log.info("after future get >>>>>>>>");
+                log.info("after future get orderBuy:{},orderSell{}>>>>>>>>",orderBuy,orderSell);
 
             } catch (InterruptedException e) {
                 log.error("Future InterruptedException get {}",e);

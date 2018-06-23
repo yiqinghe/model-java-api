@@ -160,10 +160,20 @@ public class ApiCoinbene implements Api<Object>{
                 order.tradeStatus=TradeStatus.trading;
             }else{
                 log.error("orderResponse.getStatus() buy null");
+                try {
+                    Thread.sleep(60000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
 
         }else{
             log.error("orderResponse buy null");
+            try {
+                Thread.sleep(60000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
 
         }
         return order;
@@ -195,10 +205,20 @@ public class ApiCoinbene implements Api<Object>{
                 order.tradeStatus=TradeStatus.trading;
             }else{
                 log.error("orderResponse.getStatus() sell null");
+                try {
+                    Thread.sleep(60000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
 
         }else{
             log.error("orderResponse sell null");
+            try {
+                Thread.sleep(60000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
 
         }
         return order;
@@ -236,10 +256,20 @@ public class ApiCoinbene implements Api<Object>{
 
             }else{
                 log.error("orderResponse.cancel() null");
+                try {
+                    Thread.sleep(60000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
 
         }else{
             log.error("orderResponse cancel null");
+            try {
+                Thread.sleep(60000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
 
         }
         return order;
@@ -256,7 +286,7 @@ public class ApiCoinbene implements Api<Object>{
         paras.put("timestamp",start);
         String json = Util.buildPostJson(paras);
 
-        String response = Util.doPostForJson(com.coinbene.Api.trade_url+"order/place",json);
+        String response = Util.doPostForJson(com.coinbene.Api.trade_url+"order/info",json);
         long end = System.currentTimeMillis();
         log.info("query cost:{},response:{}",end-start,response);
 
@@ -269,17 +299,29 @@ public class ApiCoinbene implements Api<Object>{
 
                 if(orderQuery.getOrderstatus().equals("canceled") || orderQuery.getOrderstatus().equals("filled")  || orderQuery.getOrderstatus().equals("partialCanceled")){
                     order.tradeStatus=TradeStatus.done;
+                    order.excutedAmount=orderQuery.getFilledquantity();
                 }
                 if(orderQuery.getOrderstatus().equals("unfilled")||orderQuery.getOrderstatus().equals("partialFilled")){
                     order.tradeStatus=TradeStatus.trading;
+                    order.excutedAmount=orderQuery.getFilledquantity();
                 }
 
             }else{
+                try {
+                    Thread.sleep(60000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 log.error("orderQueryResponse.getStatus() null");
             }
 
         }else{
             log.error("orderQueryResponse null");
+            try {
+                Thread.sleep(60000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
 
         }
         return order;

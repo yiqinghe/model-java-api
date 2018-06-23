@@ -10,7 +10,6 @@ import com.coinbene.Util;
 import com.ocx.entity.DepthResponse;
 import com.ocx.entity.TickerResponse;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

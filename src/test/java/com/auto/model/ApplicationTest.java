@@ -203,6 +203,44 @@ public class ApplicationTest {
 
 
     @Test
+    public void testCaculate05(){
+        List<Element> tradingList_Buy = new ArrayList<>();
+        List<Element> tradingList_Sell = new ArrayList<>();
+
+        Element elementB00 = new Element(0,tradeSymbol,TradeType.buy);
+        elementB00.targetAmount= new BigDecimal("0.01");
+        elementB00.excutedAmount= new BigDecimal("0.01");
+        Element elementS00 = new Element(0,tradeSymbol,TradeType.sell);
+        elementS00.targetAmount= new BigDecimal("0.01");
+        elementS00.excutedAmount= new BigDecimal(0);
+        tradingList_Sell.add(elementS00);
+        tradingList_Buy.add(elementB00);
+
+        Element elementB01 = new Element(0,tradeSymbol,TradeType.buy);
+        elementB01.targetAmount= new BigDecimal("0.01");
+        elementB01.excutedAmount= new BigDecimal("0.01");
+        tradingList_Buy.add(elementB01);
+        Element elementS01 = new Element(0,tradeSymbol,TradeType.sell);
+        elementS01.targetAmount= new BigDecimal("0.01");
+        elementS01.excutedAmount= new BigDecimal("0.01");
+        tradingList_Sell.add(elementS01);
+
+
+
+        QuantitativeResult quantitativeResult = new QuantitativeResult( balanceAtStart_Target,  balanceAtStart_Base,  balanceAtEnd_Target,  balanceAtEnd_Base, tradingList_Buy,tradingList_Sell);
+        Application application = new Application();
+
+        Application.Result result =application.caculate(quantitativeResult);
+        Assert.assertTrue(result.allAmount.compareTo(new BigDecimal("0.02"))==0);
+        Assert.assertTrue(result.diff.compareTo(new BigDecimal("0.01"))==0);
+        Assert.assertTrue(result.totalPairDone.compareTo(new BigDecimal("0.01"))==0);
+        Assert.assertTrue(result.pairDone.compareTo(new BigDecimal("0.01"))==0);
+        Assert.assertTrue(result.partPairDone.compareTo(new BigDecimal(0))==0);
+        Assert.assertTrue(result.lossRate.compareTo(new BigDecimal("0.5"))==0);
+        Assert.assertTrue(result.successRate.compareTo(new BigDecimal("0.5"))==0);
+    }
+
+    @Test
     public void testcaculateFreeRateFromLossRate02(){
         BigDecimal baseFreeRate=new BigDecimal("0.0005");
         BigDecimal lossRate=new BigDecimal(0.25);

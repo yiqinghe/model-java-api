@@ -6,19 +6,9 @@ import java.math.BigDecimal;
  * Created by gof on 18/6/17.
  */
 public class Config {
-    // 目标币的交易池大小
-    public static String tagetCurrencyPoolSize="1";
 
-    // 基本币的交易池大小
-    public static String baseCurrencyPoolSize="100";
-
-    // 量化粒度(多少份)
-    public static int quota=1;
-
-
-    // 量化交易频率
-    @Deprecated
-    public static int rateSec=1;
+    // 目标币量化粒度
+    public static String quota="1";
 
     // 并发线程
     public static int concurrency=1;
@@ -45,6 +35,9 @@ public class Config {
 
     // 查询间隔时间querySleepMillSec毫秒
     public static int querySleepMillSec=200;
+
+    // 币种最小成交小数点后几位
+    public static int amountScale = 2;
 
 
 }
