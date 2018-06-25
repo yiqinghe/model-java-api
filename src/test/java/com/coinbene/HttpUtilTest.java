@@ -1,7 +1,8 @@
 package com.coinbene;
 
 import com.alibaba.fastjson.JSON;
-import com.auto.model.entity.TradeType;
+import com.auto.trade.common.HttpUtil;
+import com.auto.trade.common.SignUtil;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -11,12 +12,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.*;
-
 /**
  * Created by gof on 18/6/21.
  */
-public class UtilTest {
+public class HttpUtilTest {
 
 
     @Test
@@ -93,7 +92,7 @@ public class UtilTest {
         paras.put("secret","783b66ca8b774e4d8ca59f4f3aadbc93");
         paras.put("timestamp",11223112231L);
         paras.put("account","exchange");
-        String signStr = Util.buildMd5Sign(paras);
+        String signStr = SignUtil.buildMd5Sign(paras);
         System.out.println(signStr);
         Assert.assertTrue(signStr.equals("ACCOUNT=EXCHANGE&APIID=ECC31028073BFDD44A75CD42D12E8201&SECRET=783B66CA8B774E4D8CA59F4F3AADBC93&TIMESTAMP=11223112231"));
 
@@ -106,10 +105,10 @@ public class UtilTest {
         paras.put("secret","783b66ca8b774e4d8ca59f4f3aadbc93");
         paras.put("timestamp",11223112231L);
         paras.put("account","exchange");
-        String signStr = Util.buildMd5Sign(paras);
+        String signStr = SignUtil.buildMd5Sign(paras);
         System.out.println(signStr);
 
-        String sign = Util.string2MD5(signStr);
+        String sign = SignUtil.string2MD5(signStr);
         System.out.println("sign:{}"+sign);
         Assert.assertTrue(sign.equals("4ef3198c37a9702c1dd847dbbcdd764a"));
 
@@ -117,7 +116,7 @@ public class UtilTest {
 
     @Test
     public void doGetRequest(){
-//        Util.doGetRequest(Api.market_url+"ticker?symbol=btcusdt");
+//        SignUtil.doGetRequest(Api.market_url+"ticker?symbol=btcusdt");
     }
 
     @Test
@@ -127,7 +126,7 @@ public class UtilTest {
         paras.put("secret","783b66ca8b774e4d8ca59f4f3aadbc93");
         paras.put("timestamp",11223112231L);
         paras.put("account","exchange");
-        String json = Util.buildPostJson(paras);
+        String json = HttpUtil.buildPostJsonWithMd5Sign(paras);
         System.out.println("json:{}"+json);
 
     }

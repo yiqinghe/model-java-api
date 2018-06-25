@@ -1,7 +1,6 @@
-package com.coinbene;
+package com.auto.trade.common;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpGet;
@@ -15,19 +14,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
 /**
  * Created by gof on 18/6/21.
  */
-public class Util {
-    private static final Logger log = LoggerFactory.getLogger(Util.class);
+public class HttpUtil {
+    private static final Logger log = LoggerFactory.getLogger(HttpUtil.class);
 
 
-    public static String buildPostJson(Map<String,Object> paras){
-        paras.put("sign",string2MD5(buildMd5Sign(paras)));
+    public static String buildPostJsonWithMd5Sign(Map<String,Object> paras){
+        paras.put("sign", SignUtil.string2MD5(SignUtil.buildMd5Sign(paras)));
         paras.remove("secret");
         return JSON.toJSONString(paras);
 
@@ -45,12 +42,12 @@ public class Util {
             httpPost.setHeader("Connection","keep-alive");
             try {
                 httpPost.setEntity(new StringEntity(jsonParams, ContentType.create("application/json", "utf-8")));
-                System.out.println("request parameters" + EntityUtils.toString(httpPost.getEntity()));
+                //System.out.println("request parameters" + EntityUtils.toString(httpPost.getEntity()));
                 HttpResponse response = httpClient.execute(httpPost);
-                System.out.println(" code:"+response.getStatusLine().getStatusCode());
-                System.out.println("doPostForInfobipUnsub response"+response.getStatusLine().toString());
+                //System.out.println(" code:"+response.getStatusLine().getStatusCode());
+               // System.out.println("doPostForInfobipUnsub response"+response.getStatusLine().toString());
                 String result = EntityUtils.toString(response.getEntity());
-                System.out.println("doPostForInfobipUnsub response"+result);
+                //System.out.println("doPostForInfobipUnsub response:"+result);
                 return result;
             } catch (Exception e) {
                 e.printStackTrace();
@@ -85,7 +82,7 @@ public class Util {
             if(httpResponse.getStatusLine().getStatusCode() == 200){
                 srtResult = EntityUtils.toString(httpResponse.getEntity());//获得返回的结果
 
-                System.out.println(srtResult);
+                //System.out.println(srtResult);
                 return srtResult;
             }else if(httpResponse.getStatusLine().getStatusCode() == 400){
                 //..........
@@ -102,61 +99,6 @@ public class Util {
             }
         }
         return null;
-    }
-
-    public static  String buildMd5Sign(Map<String, Object> paras){
-
-        Set<String> keys = paras.keySet();
-        List<String> keyList = new ArrayList<>();
-        for(String key:keys){
-            keyList.add(key);
-        }
-        Collections.sort(keyList);
-        StringBuffer sb = new StringBuffer();
-        for(String key:keyList){
-            sb.append(key);
-            sb.append("=");
-            sb.append(paras.get(key));
-            sb.append("&");
-        }
-        String signStr =sb.toString();
-        if(signStr.length() > 0){
-            signStr=signStr.substring(0,signStr.length()-1);
-        }
-        log.info("signStr:{}",signStr);
-        signStr = signStr.toUpperCase();
-        return signStr;
-
-    }
-
-    /***
-     * MD5加码 生成32位md5??
-     */
-    public static String string2MD5(String plainText){
-        String re_md5 = new String();
-        try {
-            MessageDigest md = MessageDigest.getInstance("MD5");
-            md.update(plainText.getBytes());
-            byte b[] = md.digest();
-
-            int i;
-
-            StringBuffer buf = new StringBuffer("");
-            for (int offset = 0; offset < b.length; offset++) {
-                i = b[offset];
-                if (i < 0)
-                    i += 256;
-                if (i < 16)
-                    buf.append("0");
-                buf.append(Integer.toHexString(i));
-            }
-
-            re_md5 = buf.toString();
-
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        }
-        return re_md5;
     }
 
 }

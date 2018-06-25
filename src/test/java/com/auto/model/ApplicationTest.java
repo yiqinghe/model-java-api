@@ -2,12 +2,16 @@ package com.auto.model;
 
 import com.auto.model.entity.*;
 import com.auto.trade.Application;
+import com.auto.trade.entity.OrderPrice;
 import org.junit.Test;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.Assert;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Created by gof on 18/6/19.
@@ -164,7 +168,7 @@ public class ApplicationTest {
     }
 
     @Test
-    public void testCaculate04(){
+    public void Caculate04(){
         List<Element> tradingList_Buy = new ArrayList<>();
         List<Element> tradingList_Sell = new ArrayList<>();
 
@@ -203,7 +207,7 @@ public class ApplicationTest {
 
 
     @Test
-    public void testCaculate05(){
+    public void Caculate05(){
         List<Element> tradingList_Buy = new ArrayList<>();
         List<Element> tradingList_Sell = new ArrayList<>();
 
@@ -241,7 +245,7 @@ public class ApplicationTest {
     }
 
     @Test
-    public void testcaculateFreeRateFromLossRate02(){
+    public void caculateFreeRateFromLossRate02(){
         BigDecimal baseFreeRate=new BigDecimal("0.0005");
         BigDecimal lossRate=new BigDecimal(0.25);
         BigDecimal successRate=new BigDecimal(0.5);
@@ -252,7 +256,7 @@ public class ApplicationTest {
     }
 
     @Test
-    public void testcaculateFreeRateFromLossRate03(){
+    public void caculateFreeRateFromLossRate03(){
         BigDecimal baseFreeRate=new BigDecimal("0.0005");
         BigDecimal lossRate=new BigDecimal(0.4);
         BigDecimal successRate=new BigDecimal(0.3);
@@ -260,5 +264,22 @@ public class ApplicationTest {
         Application application = new Application();
         BigDecimal totalFreeRate = application.caculateFreeRateFromLossRate( baseFreeRate, lossRate, successRate);
         Assert.assertTrue(new BigDecimal("0.002333334").subtract(totalFreeRate).abs().compareTo(new BigDecimal("0.000001"))<0);
+    }
+    @Test
+    public void balancePool() throws InterruptedException {
+        Api api = mock(Api.class);
+        Currency targetCurrency = Currency.eth;
+        Currency baseCurrency = Currency.usdt;
+        TradeSymbol symbol = new TradeSymbol(targetCurrency,baseCurrency);
+
+        OrderPrice orderPrice = new OrderPrice();
+        orderPrice.price="100";
+        when(api.getOrderPrice(symbol)).thenReturn(orderPrice);
+
+        double increaseTarget=0.05;
+        double increaseTargetRate=0.01;
+        String targetAmountAtStart="1";
+        Application.balanceMaxFailTimes=3;
+//        boolean flag = Application.balancePool(api,increaseTarget,increaseTargetRate,targetAmountAtStart);
     }
 }

@@ -5,13 +5,7 @@ import com.auto.model.entity.*;
 import com.auto.trade.common.Constants;
 import com.auto.trade.entity.DepthData;
 import com.auto.trade.entity.OrderPrice;
-import com.auto.trade.services.ApiClient;
-import com.binance.api.client.domain.OrderStatus;
-import com.binance.api.client.domain.account.NewOrderResponse;
-import com.binance.api.client.domain.account.request.CancelOrderRequest;
-import com.binance.api.client.domain.account.request.OrderStatusRequest;
-import com.binance.api.client.domain.market.TickerPrice;
-import com.coinbene.Util;
+import com.auto.trade.common.HttpUtil;
 import com.coinbene.entity.BalanceResponse;
 import com.coinbene.entity.OrderQueryResponse;
 import com.coinbene.entity.OrderResponse;
@@ -23,10 +17,7 @@ import org.slf4j.LoggerFactory;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-
-import static com.binance.api.client.domain.account.NewOrder.*;
 
 /**
  * Created by gof on 18/6/18.
@@ -44,10 +35,10 @@ public class ApiCoinbene implements Api<Object>{
         paras.put("secret",Constants.SECRET);
         paras.put("timestamp",start);
         paras.put("account","exchange");
-        String json = Util.buildPostJson(paras);
+        String json = HttpUtil.buildPostJsonWithMd5Sign(paras);
 
         Balance balanceReturn = new Balance(currency);
-        String response = Util.doPostForJson(com.coinbene.Api.trade_url+"balance",json);
+        String response = HttpUtil.doPostForJson(com.coinbene.Api.trade_url+"balance",json);
         if(response!=null) {
 
             BalanceResponse balanceResponse = JSON.parseObject(response, BalanceResponse.class);
@@ -78,7 +69,7 @@ public class ApiCoinbene implements Api<Object>{
         DepthData depthData = new DepthData();
 
         long start = System.currentTimeMillis();
-        String response = Util.doGetRequest(com.coinbene.Api.market_url+"ticker?symbol="+getSymbol(symbol));
+        String response = HttpUtil.doGetRequest(com.coinbene.Api.market_url+"ticker?symbol="+getSymbol(symbol));
         long end = System.currentTimeMillis();
         log.info("getDepthData cost:{},depthData:{}",end-start,response);
 
@@ -93,10 +84,20 @@ public class ApiCoinbene implements Api<Object>{
                 depthData.bid_1_price=tickerPrice.getLast();
                 depthData.ask_1_price=tickerPrice.getLast();
             }else{
+                try {
+                    Thread.sleep(60000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 log.error("ticketResponse.getStatus() null");
             }
 
         }else{
+            try {
+                Thread.sleep(60000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             log.error("ticketResponse null");
 
         }
@@ -110,7 +111,7 @@ public class ApiCoinbene implements Api<Object>{
         OrderPrice orderPrice = new OrderPrice();
 
         long start = System.currentTimeMillis();
-        String response = Util.doGetRequest(com.coinbene.Api.market_url+"ticker?symbol="+getSymbol(symbol));
+        String response = HttpUtil.doGetRequest(com.coinbene.Api.market_url+"ticker?symbol="+getSymbol(symbol));
         long end = System.currentTimeMillis();
         log.info("getOrderPrice cost:{},getOrderPrice:{}",end-start,response);
 
@@ -124,10 +125,20 @@ public class ApiCoinbene implements Api<Object>{
                 orderPrice.price=tickerPrice.getLast();
                 orderPrice.setEventTime(ticketResponse.getTimestamp());
             }else{
+                try {
+                    Thread.sleep(60000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 log.error("getOrderPrice.getStatus() null");
             }
 
         }else{
+            try {
+                Thread.sleep(60000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             log.error("getOrderPrice null");
 
         }
@@ -146,14 +157,14 @@ public class ApiCoinbene implements Api<Object>{
         paras.put("symbol",getSymbol(order));
         paras.put("type","buy-limit");
         paras.put("timestamp",start);
-        String json = Util.buildPostJson(paras);
+        String json = HttpUtil.buildPostJsonWithMd5Sign(paras);
 
-        String response = Util.doPostForJson(com.coinbene.Api.trade_url+"order/place",json);
+        String response = HttpUtil.doPostForJson(com.coinbene.Api.trade_url+"order/place",json);
         long end = System.currentTimeMillis();
         log.info("buy cost:{},response:{}",end-start,response);
 
         if(response!=null) {
-
+            // fixme 是否需要加try catch
             OrderResponse orderResponse= JSON.parseObject(response, OrderResponse.class);
             if(orderResponse.getStatus()!=null && orderResponse.getStatus().equals("ok")){
                 order.orderId=orderResponse.getOrderid();
@@ -161,7 +172,7 @@ public class ApiCoinbene implements Api<Object>{
             }else{
                 log.error("orderResponse.getStatus() buy null");
                 try {
-                    Thread.sleep(60000);
+                    Thread.sleep(15000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -170,7 +181,7 @@ public class ApiCoinbene implements Api<Object>{
         }else{
             log.error("orderResponse buy null");
             try {
-                Thread.sleep(60000);
+                Thread.sleep(15000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -191,9 +202,9 @@ public class ApiCoinbene implements Api<Object>{
         paras.put("symbol",getSymbol(order));
         paras.put("type","sell-limit");
         paras.put("timestamp",start);
-        String json = Util.buildPostJson(paras);
+        String json = HttpUtil.buildPostJsonWithMd5Sign(paras);
 
-        String response = Util.doPostForJson(com.coinbene.Api.trade_url+"order/place",json);
+        String response = HttpUtil.doPostForJson(com.coinbene.Api.trade_url+"order/place",json);
         long end = System.currentTimeMillis();
         log.info("sell cost:{},response:{}",end-start,response);
 
@@ -206,7 +217,7 @@ public class ApiCoinbene implements Api<Object>{
             }else{
                 log.error("orderResponse.getStatus() sell null");
                 try {
-                    Thread.sleep(60000);
+                    Thread.sleep(15000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -215,7 +226,7 @@ public class ApiCoinbene implements Api<Object>{
         }else{
             log.error("orderResponse sell null");
             try {
-                Thread.sleep(60000);
+                Thread.sleep(15000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -243,9 +254,9 @@ public class ApiCoinbene implements Api<Object>{
         paras.put("secret",Constants.SECRET);
         paras.put("orderid",order.orderId);
         paras.put("timestamp",start);
-        String json = Util.buildPostJson(paras);
+        String json = HttpUtil.buildPostJsonWithMd5Sign(paras);
 
-        String response = Util.doPostForJson(com.coinbene.Api.trade_url+"order/cancel",json);
+        String response = HttpUtil.doPostForJson(com.coinbene.Api.trade_url+"order/cancel",json);
         long end = System.currentTimeMillis();
         log.info("cancel cost:{},response:{}",end-start,response);
 
@@ -284,9 +295,9 @@ public class ApiCoinbene implements Api<Object>{
         paras.put("secret",Constants.SECRET);
         paras.put("orderid",order.orderId);
         paras.put("timestamp",start);
-        String json = Util.buildPostJson(paras);
+        String json = HttpUtil.buildPostJsonWithMd5Sign(paras);
 
-        String response = Util.doPostForJson(com.coinbene.Api.trade_url+"order/info",json);
+        String response = HttpUtil.doPostForJson(com.coinbene.Api.trade_url+"order/info",json);
         long end = System.currentTimeMillis();
         log.info("query cost:{},response:{}",end-start,response);
 

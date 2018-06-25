@@ -3,6 +3,7 @@ package com.auto.trade;
 
 import com.auto.model.Api;
 import com.auto.model.ApiCoinbene;
+import com.auto.model.ApiOcx;
 import com.auto.model.Model;
 import com.auto.model.entity.*;
 import com.auto.trade.common.Constants;
@@ -34,11 +35,13 @@ public class Application {
     public static Double targetAmoutLostRate=0.1;
 
     // 平衡资金池最大失败次数
-    private static int balanceMaxFailTimes=3;
-    private static int balanceFailTimes=0;
+    public static int balanceMaxFailTimes=3;
+    public static int balanceFailTimes=0;
+
+    public static String exchange="coinbene";
 
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
 
         SpringApplication.run(Application.class, args);
         // 处理参数
@@ -46,7 +49,13 @@ public class Application {
 
         tradeSymbol = new TradeSymbol(targetCurrency,baseCurrency);
         Config.symbol = tradeSymbol;
-        Api api =new ApiCoinbene();
+        Api api = null;
+        if(exchange.equals("coinbene")){
+            api =new ApiCoinbene();
+        }
+        if(exchange.equals("ocx")){
+            api =new ApiOcx();
+        }
         Model model = new Model(api,tradeSymbol);
 
         Config.totalFeeRate =caculateFreeRateFromLossRate(Config.baseFeeRate,Config.maxLossRate,new BigDecimal(1).subtract(Config.maxLossRate));
@@ -56,6 +65,7 @@ public class Application {
         while(true){
             try {
                 log.info("start model.periodStart,times:{}",times);
+                long startTime = System.currentTimeMillis();
                 QuantitativeResult quantitativeResult = model.periodStart();
                 times++;
 
@@ -73,8 +83,9 @@ public class Application {
                 log.info("increaseTarget:"+increaseTarget);
                 log.info("increaseTargetRate:"+increaseTargetRate);
 
+                //Thread.sleep(10000);
                 Application.Result result =caculate(quantitativeResult);
-                log.info("result:"+result.toString());
+                log.info("result:{},cost:{}",result.toString(),System.currentTimeMillis()-startTime);
 
                 // todo 平衡资金池
                 boolean flag = balancePool(api, increaseTarget, increaseTargetRate,quantitativeResult.balanceAtStart_Target.amount);
@@ -103,8 +114,10 @@ public class Application {
 //                }
 
 
-            } catch (InterruptedException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
+                log.error("while Exception",e);
+                Thread.sleep(60000);
             }
         }
     }
@@ -117,16 +130,18 @@ public class Application {
      * @param increaseTargetRate
      * @return
      */
-    private static boolean balancePool(Api api, double increaseTarget, double increaseTargetRate,String targetAmountAtStart) throws InterruptedException {
+    public static boolean balancePool(Api api, double increaseTarget, double increaseTargetRate,String targetAmountAtStart) throws InterruptedException {
+
         boolean balanceFlag = false;
         balanceFailTimes=0;
-        if(Math.abs(increaseTarget) <= 0.01){
+        if(Math.abs(increaseTarget) <= Double.valueOf(Config.quota)){
+            log.warn("balance Pool no need to balance,{}");
             return true;
         }
 
         // 尽最大可能去平衡资金池
-        while(!balanceFlag && Math.abs(increaseTarget) > 0.01 && balanceFailTimes<balanceMaxFailTimes){
-
+        while(!balanceFlag && Math.abs(increaseTarget) > Double.valueOf(Config.quota) && balanceFailTimes<balanceMaxFailTimes){
+            log.warn("balance Pool increaseTarget,{}",increaseTarget);
             OrderPrice orderPrice  = api.getOrderPrice(tradeSymbol);
             long tradeTime = System.currentTimeMillis();
             Order order = null;
@@ -134,7 +149,7 @@ public class Application {
                 // 卖掉
                 order = new Order(tradeSymbol, TradeType.sell,orderPrice.price,
                         BigDecimal.valueOf(Math.abs(increaseTarget)).setScale(Config.amountScale, RoundingMode.HALF_UP).toString());
-               log.warn("balancePool sell,{}",order);
+               log.warn("balance Pool sell,{}",order);
                 order = api.sell(order);
 
             }
@@ -142,7 +157,7 @@ public class Application {
                 // 买入
                 order = new Order(tradeSymbol, TradeType.buy,orderPrice.price,
                         BigDecimal.valueOf(Math.abs(increaseTarget)).setScale(Config.amountScale, RoundingMode.HALF_UP).toString());
-                log.warn("balancePool buy,{}",order);
+                log.warn("balance Pool buy,{}",order);
                 order = api.buy(order);
 
             }
@@ -152,7 +167,11 @@ public class Application {
                 order = api.queryOrder(order);
                 if (order.tradeStatus == TradeStatus.done) {
                     log.warn("balance query  done");
-                    balanceFlag = true;
+                    if(isCancel){
+                        balanceFlag = false;
+                    }else{
+                        balanceFlag = true;
+                    }
                     break;
                 }
                 else if (order.tradeStatus == TradeStatus.trading) {
@@ -173,20 +192,27 @@ public class Application {
 
                     }
                 }
-                if(cancelQueryTimes > 5){
+                if(cancelQueryTimes > 100){
                     log.warn("balance query times exceed *********");
                     break;
                 }
-                Thread.sleep(2000);
+                Thread.sleep(5000);
             }
             Thread.sleep(10000);
             // 每次都去重新查询，看下次是否还需要
-            try{
-                Balance balanceNow = api.getBalance(tradeSymbol.targetCurrency);
-                increaseTarget = Double.valueOf(balanceNow.amount)-Double.valueOf(targetAmountAtStart);
 
-            }catch (Exception e){
-                log.error("balance api.getBalance error,{}",e);
+            if(!balanceFlag){
+                try{
+                    Balance balanceNow = api.getBalance(tradeSymbol.targetCurrency);
+                    increaseTarget = Double.valueOf(balanceNow.amount)-Double.valueOf(targetAmountAtStart);
+                    log.warn("balance Pool increaseTarget:{},balanceNow:{},targetAmountAtStart:{}",increaseTarget,balanceNow,targetAmountAtStart);
+                    if(Math.abs(increaseTarget) <= Double.valueOf(Config.quota)){
+                        balanceFlag = true;
+                    }
+
+                }catch (Exception e){
+                    log.error("balance api.getBalance error,{}",e);
+                }
             }
 
         }
@@ -230,35 +256,40 @@ public class Application {
         int partSuccessCount = 0;
         //log.info("caculate:{}",quantitativeResult);
         for(Element elementB:quantitativeResult.tradingList_Buy){
-            Element elementS=quantitativeResult.tradingList_Sell.get(index);
-            if(elementB.excutedAmount.compareTo(elementB.targetAmount)==0&&
-                    elementS.excutedAmount.compareTo(elementS.targetAmount)==0){
+            try{
+                Element elementS=quantitativeResult.tradingList_Sell.get(index);
+                if(elementB.excutedAmount.compareTo(elementB.targetAmount)==0&&
+                        elementS.excutedAmount.compareTo(elementS.targetAmount)==0){
 
-                pairDone = pairDone.add(elementB.excutedAmount);
-                totalPairDone = totalPairDone.add(elementB.excutedAmount);
-                totalSuccessCount++;
+                    pairDone = pairDone.add(elementB.excutedAmount);
+                    totalPairDone = totalPairDone.add(elementB.excutedAmount);
+                    totalSuccessCount++;
 
-            }else if(elementB.excutedAmount.compareTo(elementS.excutedAmount) == 0){
+                }else if(elementB.excutedAmount.compareTo(elementS.excutedAmount) == 0){
 
-                pairDone = pairDone.add(elementB.excutedAmount);
-                partPairDone = partPairDone.add(elementB.excutedAmount);
-                partSuccessCount++;
+                    pairDone = pairDone.add(elementB.excutedAmount);
+                    partPairDone = partPairDone.add(elementB.excutedAmount);
+                    partSuccessCount++;
 
-            }else if(elementB.excutedAmount.compareTo(elementS.excutedAmount) != 0){
-                BigDecimal tmpDiff = elementB.excutedAmount.subtract(elementS.excutedAmount);
+                }else if(elementB.excutedAmount.compareTo(elementS.excutedAmount) != 0){
+                    BigDecimal tmpDiff = elementB.excutedAmount.subtract(elementS.excutedAmount);
 
-                diffGloble = diffGloble.add(tmpDiff);
+                    diffGloble = diffGloble.add(tmpDiff);
 
-                diff = diff.add(tmpDiff.abs());
-                partPairDone = partPairDone.add(elementB.excutedAmount.compareTo(elementS.excutedAmount)<0?elementB.excutedAmount:elementS.excutedAmount);
-                pairDone = pairDone.add(elementB.excutedAmount.compareTo(elementS.excutedAmount)<0?elementB.excutedAmount:elementS.excutedAmount);
-                partSuccessCount++;
+                    diff = diff.add(tmpDiff.abs());
+                    partPairDone = partPairDone.add(elementB.excutedAmount.compareTo(elementS.excutedAmount)<0?elementB.excutedAmount:elementS.excutedAmount);
+                    pairDone = pairDone.add(elementB.excutedAmount.compareTo(elementS.excutedAmount)<0?elementB.excutedAmount:elementS.excutedAmount);
+                    partSuccessCount++;
 
-            }else{
-                log.error("error else");
+                }else{
+                    log.error("error else");
+                }
+                allAmount = allAmount.add(elementB.targetAmount);
+                index++;
+
+            }catch (Exception e){
+                log.error("caculate excepton :{}",e);
             }
-            allAmount = allAmount.add(elementB.targetAmount);
-            index++;
         }
         // loss率
         BigDecimal lossRate = diff.abs().divide(allAmount,6,BigDecimal.ROUND_CEILING);
@@ -379,6 +410,9 @@ public class Application {
                 }
                 if ("balanceMaxFailTimes".equals(argsStr[0])) {
                     balanceMaxFailTimes = Integer.valueOf(argsStr[1]);
+                }
+                if ("exchange".equals(argsStr[0])) {
+                    exchange = String.valueOf(argsStr[1]);
                 }
             }
         }

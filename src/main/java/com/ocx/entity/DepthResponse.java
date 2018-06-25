@@ -34,6 +34,8 @@ import java.util.List;
  */
 public class DepthResponse {
 
+    private Data data ;
+
     public Data getData() {
         return data;
     }
@@ -41,8 +43,6 @@ public class DepthResponse {
     public void setData(Data data) {
         this.data = data;
     }
-
-    private Data data ;
 
     public static class Data{
         public long getTimestamp() {

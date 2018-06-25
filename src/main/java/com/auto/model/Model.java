@@ -44,8 +44,6 @@ public class Model {
     // 	量化周期待卖数组
     public List<Element> tradingList_Sell = new ArrayList<>();
 
-    //本轮量化周期是否结束
-    public boolean isFinish;
 
     private    ExecutorService executor = new ThreadPoolExecutor(6, 20,
             60L, TimeUnit.SECONDS,
@@ -61,7 +59,6 @@ public class Model {
      * 初始化
      */
     public boolean init(){
-        isFinish = false;
         tradingList_Buy.clear();;
         tradingList_Sell.clear();
 
@@ -78,7 +75,7 @@ public class Model {
 
         BigDecimal each = new BigDecimal(Config.quota).setScale(Config.amountScale, RoundingMode.HALF_UP);
 
-        int num = new BigDecimal(balanceAtStart_Target.amount).divide(new BigDecimal(Config.quota))
+        int num = new BigDecimal(balanceAtStart_Target.amount).divide(new BigDecimal(Config.quota),Config.amountScale, RoundingMode.HALF_UP)
                 .setScale(Config.amountScale, RoundingMode.HALF_UP).intValue();
         log.info("array num:{} >>>>>>>>>>>>>>>>>>>>>>>>",num);
         for(int i = 0;i< num;i++){
@@ -116,15 +113,26 @@ public class Model {
 
         }
 
+        List<Task> taskList = new ArrayList<>();
         if(tradingList_Buy.size()>0 && tradingList_Sell.size() >0){
             for(int i =0;i<Config.concurrency;i++){
                 Task task = new Task();
+                taskList.add(task);
                 task.start();
             }
 
+            boolean finish = false;
             // 等待结束
-            while(!isFinish){
-                Thread.sleep(10);
+            while(!finish){
+                for(Task task:taskList){
+                    finish = true;
+                    if(!task.isFinish){
+                        finish =false;
+                        break;
+                    }
+                    log.warn("period total done");
+                }
+                Thread.sleep(1000);
             }
         }
         balanceAtEnd_Target = api.getBalance(symbol.targetCurrency);
@@ -167,6 +175,8 @@ public class Model {
         // 测试钩子
         public Map<String,String> mapForTestHook = new HashMap<>();
 
+        //本轮量化周期是否结束
+        public boolean isFinish=false;
 
         public void run() {
             int count =0;
@@ -314,9 +324,9 @@ public class Model {
             try {
                 //log.info("before future get");
 
-                // 阻塞获取返回结果
-                orderBuy = buyFuture.get(10,TimeUnit.SECONDS);
-                orderSell = sellFuture.get(10,TimeUnit.SECONDS);
+                // 阻塞获取返回结果 fixme // 任务里面的睡眠时间不能超过future的超时时间
+                orderBuy = buyFuture.get(20,TimeUnit.SECONDS);
+                orderSell = sellFuture.get(20,TimeUnit.SECONDS);
 
                 log.info("after future get orderBuy:{},orderSell{}>>>>>>>>",orderBuy,orderSell);
 
@@ -377,13 +387,13 @@ public class Model {
         public Order queryBuyOrderStatus(){
             long now = System.currentTimeMillis();
             if (orderBuy != null) {
-                if(orderBuy.orderId==null){
-                    log.warn("orderBuy.orderId==null");
-                    elementB.tradeStatus=TradeStatus.init;
-                    elementB=null;
-                    orderBuy = null;
-                    return null;
-                }
+                    if(orderBuy.orderId==null){
+                        log.warn("orderBuy.orderId==null");
+                        elementB.tradeStatus=TradeStatus.init;
+                        elementB=null;
+                        orderBuy = null;
+                        return null;
+                    }
                 if(now > tradeTime + queryIntervalMillsec){
                     orderBuy = api.queryOrder(orderBuy);
                     if (orderBuy.tradeStatus == TradeStatus.done) {

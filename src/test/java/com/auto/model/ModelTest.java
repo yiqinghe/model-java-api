@@ -32,7 +32,7 @@ public class ModelTest {
         TradeSymbol tradeSymbol = new TradeSymbol(targetCurrency,baseCurrency);
         Api api = new ApiDemo();
         model = new Model(api,tradeSymbol);
-        Assert.assertFalse(model.isFinish);
+        //Assert.assertFalse(model.isFinish);
     }
     @Test
     public void testInit(){
