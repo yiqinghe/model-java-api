@@ -366,8 +366,8 @@ public class ApiCoinbene implements Api<Object>{
         // todo 根据趋势来造价
         // todo 判断价格比较平稳的时候操作。
 
-        tradeContext.buyPrice= buyPriceInDepth.setScale(6, RoundingMode.CEILING).toString();
-        tradeContext.sellPrice=buyPriceInDepth.setScale(6, RoundingMode.CEILING).toString();
+        tradeContext.buyPrice= buyPriceInDepth.setScale(Config.priceScale, RoundingMode.CEILING).toString();
+        tradeContext.sellPrice=buyPriceInDepth.setScale(Config.priceScale, RoundingMode.CEILING).toString();
         return tradeContext;
     }
 

@@ -286,7 +286,7 @@ public class Model {
          *  发起交易，并发执行
          */
         public void createOrder(Order orderB, Order orderS){
-            log.info("createOrder,orderBuy:{},orderSell:{}",orderBuy,orderSell);
+            log.info("createOrder,orderBuy:,orderSell:");
             tradeTime = System.currentTimeMillis();
 
             BuyTask buyTask = new BuyTask(api,orderB);

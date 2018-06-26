@@ -38,6 +38,8 @@ public class Config {
 
     // 币种最小成交小数点后几位
     public static int amountScale = 2;
+    // 币种最小成交小数点后几位
+    public static int priceScale = 6;
 
 
 }

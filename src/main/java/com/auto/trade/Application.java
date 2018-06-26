@@ -88,7 +88,7 @@ public class Application {
                 log.info("result:{},cost:{}",result.toString(),System.currentTimeMillis()-startTime);
 
                 // todo 平衡资金池
-                boolean flag = balancePool(api, increaseTarget, increaseTargetRate,quantitativeResult.balanceAtStart_Target.amount);
+                boolean flag = balancePool(api, increaseTargetRate,quantitativeResult.balanceAtStart_Target.amount);
                 if(!flag){
                     break;
                 }
@@ -130,37 +130,79 @@ public class Application {
      * @param increaseTargetRate
      * @return
      */
-    public static boolean balancePool(Api api, double increaseTarget, double increaseTargetRate,String targetAmountAtStart) throws InterruptedException {
+    public static boolean balancePool(Api api, double increaseTargetRate,String targetAmountAtStart) throws InterruptedException {
 
         boolean balanceFlag = false;
         balanceFailTimes=0;
-        if(Math.abs(increaseTarget) <= Double.valueOf(Config.quota)){
+        Balance balanceTargetNow = null;
+        Balance balanceBaseNow = null;
+        OrderPrice orderPrice = null;
+
+        while(true){
+            try{
+                balanceTargetNow = api.getBalance(tradeSymbol.targetCurrency);
+                balanceBaseNow = api.getBalance(tradeSymbol.baseCurrency);
+                orderPrice = api.getOrderPrice(tradeSymbol);
+
+                if(balanceTargetNow !=null &&balanceTargetNow.amount != null
+                        && balanceBaseNow!=null && balanceBaseNow.amount!=null
+                        && orderPrice!=null && orderPrice.price!=null){
+
+                    break;
+                }
+                Thread.sleep(30000);
+            }catch (Exception e){
+                log.error("balance Pool getBalance exception:{}",e);
+                Thread.sleep(30000);
+            }
+        }
+        BigDecimal baseValues = new BigDecimal(balanceBaseNow.amount).divide(new BigDecimal(orderPrice.price),Config.amountScale,RoundingMode.HALF_UP);
+        BigDecimal diff = baseValues.subtract(new BigDecimal(balanceTargetNow.amount))
+                            .divide(new BigDecimal(2),Config.amountScale,RoundingMode.HALF_UP);
+
+        if(diff.abs().compareTo(new BigDecimal(Config.quota)) <= 0){
             log.warn("balance Pool no need to balance,{}");
             return true;
         }
-
         // 尽最大可能去平衡资金池
-        while(!balanceFlag && Math.abs(increaseTarget) > Double.valueOf(Config.quota) && balanceFailTimes<balanceMaxFailTimes){
-            log.warn("balance Pool increaseTarget,{}",increaseTarget);
-            OrderPrice orderPrice  = api.getOrderPrice(tradeSymbol);
-            long tradeTime = System.currentTimeMillis();
-            Order order = null;
-            if(increaseTargetRate > 0 ){
-                // 卖掉
-                order = new Order(tradeSymbol, TradeType.sell,orderPrice.price,
-                        BigDecimal.valueOf(Math.abs(increaseTarget)).setScale(Config.amountScale, RoundingMode.HALF_UP).toString());
-               log.warn("balance Pool sell,{}",order);
-                order = api.sell(order);
+        while(!balanceFlag && diff.abs().compareTo(new BigDecimal(Config.quota)) > 0 && balanceFailTimes<balanceMaxFailTimes){
+            log.warn("balance Pool increaseTarget,{}",diff);
+            while(true){
+                try{
+                    orderPrice  = api.getOrderPrice(tradeSymbol);
+                    if(orderPrice!=null && orderPrice.price!=null){
+                        break;
+                    }
+                    Thread.sleep(30000);
+
+                }catch (Exception e){
+                    log.error("balance Pool getBalance exception:{}",e);
+                    Thread.sleep(30000);
+                }
 
             }
-            if(increaseTargetRate < 0 ){
+            long tradeTime = System.currentTimeMillis();
+            Order order = null;
+
+            if(diff.compareTo(new BigDecimal(0))  > 0){
                 // 买入
                 order = new Order(tradeSymbol, TradeType.buy,orderPrice.price,
-                        BigDecimal.valueOf(Math.abs(increaseTarget)).setScale(Config.amountScale, RoundingMode.HALF_UP).toString());
+                        diff.abs().setScale(Config.amountScale, RoundingMode.HALF_UP).toString());
                 log.warn("balance Pool buy,{}",order);
                 order = api.buy(order);
 
             }
+
+
+            if(diff.compareTo(new BigDecimal(0))  < 0 ){
+                // 卖掉
+                order = new Order(tradeSymbol, TradeType.sell,orderPrice.price,
+                        diff.abs().setScale(Config.amountScale, RoundingMode.HALF_UP).toString());
+               log.warn("balance Pool sell,{}",order);
+                order = api.sell(order);
+
+            }
+
             boolean isCancel = false;
             int cancelQueryTimes = 0;
             while(order!=null && order.orderId!=null){
@@ -203,13 +245,14 @@ public class Application {
 
             if(!balanceFlag){
                 try{
-                    Balance balanceNow = api.getBalance(tradeSymbol.targetCurrency);
-                    increaseTarget = Double.valueOf(balanceNow.amount)-Double.valueOf(targetAmountAtStart);
-                    log.warn("balance Pool increaseTarget:{},balanceNow:{},targetAmountAtStart:{}",increaseTarget,balanceNow,targetAmountAtStart);
-                    if(Math.abs(increaseTarget) <= Double.valueOf(Config.quota)){
+                    baseValues = new BigDecimal(balanceBaseNow.amount).divide(new BigDecimal(orderPrice.price),Config.amountScale,RoundingMode.HALF_UP);
+                    diff = baseValues.subtract(new BigDecimal(balanceTargetNow.amount))
+                            .divide(new BigDecimal(2),Config.amountScale,RoundingMode.HALF_UP);
+
+                    if(diff.abs().compareTo(new BigDecimal(Config.quota)) <= 0){
                         balanceFlag = true;
                     }
-
+                    log.warn("balance Pool increaseTarget:{},balanceNow:{},targetAmountAtStart:{}",diff,balanceBaseNow.amount,targetAmountAtStart);
                 }catch (Exception e){
                     log.error("balance api.getBalance error,{}",e);
                 }
@@ -413,6 +456,9 @@ public class Application {
                 }
                 if ("exchange".equals(argsStr[0])) {
                     exchange = String.valueOf(argsStr[1]);
+                }
+                if ("priceScale".equals(argsStr[0])) {
+                    Config.priceScale = Integer.valueOf(argsStr[1]);
                 }
             }
         }
