@@ -1,14 +1,12 @@
 package com.auto.model;
 
+import com.auto.model.common.Api;
 import com.auto.model.entity.Config;
-import com.auto.model.entity.TradeType;
+import com.binance.ApiBinance;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.math.BigDecimal;
-
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
 
 /**
  * Created by gof on 18/6/19.

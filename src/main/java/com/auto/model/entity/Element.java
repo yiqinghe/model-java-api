@@ -23,6 +23,9 @@ public class Element {
     // 是否已经发起订单取消请求
     private boolean isCanceling;
 
+    // 延时取消订单模型里面会用到
+    private Order order;
+
     public boolean isCanceling() {
         return isCanceling;
     }
@@ -35,6 +38,14 @@ public class Element {
         this.elementId = elementId;
         this.tradeSymbol = tradeSymbol;
         this.tradeType = tradeType;
+    }
+
+    public Order getOrder() {
+        return order;
+    }
+
+    public void setOrder(Order order) {
+        this.order = order;
     }
 
     @Override

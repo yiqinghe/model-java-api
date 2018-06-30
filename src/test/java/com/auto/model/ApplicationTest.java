@@ -1,5 +1,6 @@
 package com.auto.model;
 
+import com.auto.model.common.Api;
 import com.auto.model.entity.*;
 import com.auto.trade.Application;
 import com.auto.trade.entity.OrderPrice;

@@ -13,7 +13,10 @@ public class Config {
     // 并发线程
     public static int concurrency=1;
 
-    // 最多waitOrderDoneMillSec毫秒后，买卖订单都必须要有终态
+    // 等待最长maxCancelWaitTimeMillSec 毫秒取消订单
+    public static int maxCancelWaitTimeMillSec = 10000;
+
+    // 最多waitOrderDoneMillSec毫秒后，买卖订单都必须进入取消流程
     public static int waitOrderDoneMillSec=2;
 
     // 深度数据有效时间范围
@@ -40,6 +43,15 @@ public class Config {
     public static int amountScale = 2;
     // 币种最小成交小数点后几位
     public static int priceScale = 6;
+    // 卖比买高的粒度
+    public static int increasePriceScale = 6;
+    public static int unit = 1;
+    // 添加单
+    public static int maxPrice = 2;
+
+    public static String  abTest = "a";
+
+
 
 
 }

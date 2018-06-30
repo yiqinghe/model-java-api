@@ -7,5 +7,7 @@ package com.auto.model.entity;
 public enum TradeStatus {
     init,
     trading,// 已提交、部分成交
-    done //取消订单、全部成交
+    done, //取消订单、全部成交
+    waitCancel, //等待取消
+    canceling //取消中
 }

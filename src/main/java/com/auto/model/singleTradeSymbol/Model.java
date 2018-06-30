@@ -1,15 +1,15 @@
-package com.auto.model;
+package com.auto.model.singleTradeSymbol;
 
+import com.auto.model.common.AbstractTask;
+import com.auto.model.common.Api;
 import com.auto.trade.entity.DepthData;
 import com.auto.model.entity.*;
 import com.auto.trade.entity.OrderPrice;
 import com.binance.api.client.domain.TimeInForce;
-import org.aspectj.weaver.ast.Or;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.validation.constraints.AssertTrue;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
@@ -21,7 +21,8 @@ import java.util.concurrent.*;
 /**
  * Created by gof on 18/6/17.
  */
-public class Model {
+@Deprecated
+public class Model extends AbstractModel{
 
     private static final Logger log = LoggerFactory.getLogger(Model.class);
 
@@ -44,12 +45,16 @@ public class Model {
     // 	量化周期待卖数组
     public List<Element> tradingList_Sell = new ArrayList<>();
 
+    private final Object listLockB = new Object();
+    private final Object listLockS = new Object();
+
 
     private    ExecutorService executor = new ThreadPoolExecutor(6, 20,
             60L, TimeUnit.SECONDS,
             new SynchronousQueue<Runnable>());
 
     public Model(Api api, TradeSymbol symbol) {
+        super(api,symbol);
         this.api = api;
         this.symbol=symbol;
 
@@ -147,13 +152,16 @@ public class Model {
         return quantitativeResult;
     }
 
+    @Override
+    public void buildTask(List<AbstractTask> taskList) {
+
+    }
+
 
     // 测试钩子
     public Task taskForTestHook = new Task();
 
     class Task extends Thread {
-        private final Object listLockB = new Object();
-        private final Object listLockS = new Object();
 
         public Order orderSell;
         public Order orderBuy;
@@ -175,7 +183,7 @@ public class Model {
         // 测试钩子
         public Map<String,String> mapForTestHook = new HashMap<>();
 
-        //本轮量化周期是否结束
+        //任务是否结束
         public boolean isFinish=false;
 
         public void run() {
@@ -420,8 +428,9 @@ public class Model {
                             if (!elementB.isCanceling()) {
                                 mapForTestHook.put("isCancelingForBuy","true");
                                 log.warn("cancel buy order *********");
-                                api.cancel(orderBuy);
-                                elementB.setCanceling(true);
+                                if(api.cancel(orderBuy)!=null){
+                                    elementB.setCanceling(true);
+                                }
                             }else{
                                 mapForTestHook.put("isCancelingForBuy","false");
                                 log.warn("canceling buy order");
@@ -471,8 +480,9 @@ public class Model {
                             if (!elementS.isCanceling()) {
                                 mapForTestHook.put("isCancelingForSell","true");
                                 log.warn("cancel sell order *********");
-                                api.cancel(orderSell);
-                                elementS.setCanceling(true);
+                                if(api.cancel(orderSell)!=null){
+                                    elementS.setCanceling(true);
+                                }
                             }else{
                                 mapForTestHook.put("isCancelingForSell","false");
                                 log.warn("canceling sell order");

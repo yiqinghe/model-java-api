@@ -1,29 +1,23 @@
 package com.auto.trade.task;
 
-import com.auto.model.ApiBinance;
+import com.binance.ApiBinance;
 import com.auto.model.entity.Config;
-import com.auto.model.entity.Currency;
-import com.auto.model.entity.TradeSymbol;
 import com.auto.trade.entity.DepthData;
 import com.auto.trade.Application;
 import com.auto.trade.entity.Exchange;
 import com.auto.trade.entity.OrderPrice;
-import com.auto.trade.services.ApiClient;
 import com.auto.trade.services.AppContext;
 import com.auto.trade.services.DataService;
 import com.binance.api.client.BinanceApiClientFactory;
 import com.binance.api.client.BinanceApiWebSocketClient;
-import com.binance.api.client.domain.account.Account;
 import com.binance.api.client.domain.event.CandlestickEvent;
 import com.binance.api.client.domain.event.DepthEvent;
-import com.binance.api.client.domain.market.CandlestickInterval;
 import com.binance.api.client.domain.market.OrderBookEntry;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

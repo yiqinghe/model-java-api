@@ -1,10 +1,11 @@
-package com.auto.model;
+package com.auto.model.common;
 
 import com.auto.trade.entity.DepthData;
 import com.auto.model.entity.*;
 import com.auto.trade.entity.OrderPrice;
 
 import java.math.BigDecimal;
+import java.util.Map;
 
 /**
  * Created by gof on 18/6/17.
@@ -99,4 +100,6 @@ public interface Api<T> {
      * @return
      */
     BigDecimal getTargetAmountForSell(BigDecimal originalTargetAmount);
+
+    String buildSign(String http_head, String path, Map<String, String> params, long systemTimeMillsecs);
 }

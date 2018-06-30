@@ -1,6 +1,6 @@
 package com.auto.trade.services;
 
-import com.auto.model.ApiBinance;
+import com.binance.ApiBinance;
 import com.auto.model.entity.TradeSymbol;
 import com.auto.trade.entity.*;
 import org.joda.time.DateTime;

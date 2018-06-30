@@ -1,19 +1,17 @@
-package com.auto.model;
+package com.binance;
 
+import com.auto.model.common.Api;
 import com.auto.model.entity.*;
 import com.auto.trade.entity.DepthData;
-import com.auto.trade.entity.Exchange;
 import com.auto.trade.entity.OrderPrice;
 import com.auto.trade.services.ApiClient;
 import com.auto.trade.services.AppContext;
 import com.auto.trade.services.DataService;
 import com.binance.api.client.domain.OrderStatus;
-import com.binance.api.client.domain.TimeInForce;
 import com.binance.api.client.domain.account.Account;
 import com.binance.api.client.domain.account.NewOrderResponse;
 import com.binance.api.client.domain.account.request.CancelOrderRequest;
 import com.binance.api.client.domain.account.request.OrderStatusRequest;
-import com.binance.api.client.domain.market.BookTicker;
 import com.binance.api.client.domain.market.TickerPrice;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -22,13 +20,14 @@ import org.slf4j.LoggerFactory;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
+import java.util.Map;
 
 import static com.binance.api.client.domain.account.NewOrder.*;
 
 /**
  * Created by gof on 18/6/18.
  */
-public class ApiBinance implements Api<Object>{
+public class ApiBinance implements Api<Object> {
     private static final Logger log = LoggerFactory.getLogger(ApiBinance.class);
 
 
@@ -209,5 +208,9 @@ public class ApiBinance implements Api<Object>{
         String target=StringUtils.upperCase(symbol.targetCurrency.getCurrency());
         String base=StringUtils.upperCase(symbol.baseCurrency.getCurrency());
         return target+base;
+    }
+    @Override
+    public String buildSign(String http_head, String path, Map<String, String> params, long systemTimeMillsecs) {
+        return null;
     }
 }

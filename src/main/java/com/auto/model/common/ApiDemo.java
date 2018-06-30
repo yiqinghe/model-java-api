@@ -1,10 +1,11 @@
-package com.auto.model;
+package com.auto.model.common;
 
 import com.auto.model.entity.*;
 import com.auto.trade.entity.DepthData;
 import com.auto.trade.entity.OrderPrice;
 
 import java.math.BigDecimal;
+import java.util.Map;
 
 /**
  * Created by gof on 18/6/17.
@@ -93,6 +94,9 @@ public class ApiDemo implements Api<Object> {
         // 普通模式，不用少卖，手续费是有base出。
         return originalTargetAmount;
     }
-
+    @Override
+    public String buildSign(String http_head, String path, Map<String, String> params, long systemTimeMillsecs) {
+        return null;
+    }
 
 }

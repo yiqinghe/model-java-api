@@ -9,6 +9,7 @@ public enum Currency {
     usdt("usdt"),
     bnb("bnb"),
     coni("coni"),
+    ft("ft"),
     xrp("xrp");
 
     private String currency;

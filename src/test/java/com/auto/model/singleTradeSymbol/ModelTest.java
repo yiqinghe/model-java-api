@@ -1,6 +1,8 @@
-package com.auto.model;
+package com.auto.model.singleTradeSymbol;
 
+import com.auto.model.common.Api;
 import com.auto.model.entity.*;
+import com.auto.model.common.ApiDemo;
 import com.auto.trade.entity.DepthData;
 import org.junit.Assert;
 import org.junit.Before;
@@ -113,6 +115,7 @@ public class ModelTest {
         order.orderId="00000001";
         order.tradeStatus=TradeStatus.trading;
         when(api.queryOrder(orderInput)).thenReturn(order);
+        when(api.cancel(order)).thenReturn(order);
 
         model.taskForTestHook.tradeTime=10000;
         model.taskForTestHook.orderBuy=orderInput;
@@ -135,6 +138,8 @@ public class ModelTest {
         order.orderId="00000001";
         order.tradeStatus=TradeStatus.trading;
         when(api.queryOrder(orderInput)).thenReturn(order);
+        when(api.cancel(order)).thenReturn(order);
+
 
         model.taskForTestHook.orderBuy=orderInput;
         model.taskForTestHook.elementB=new Element(0,model.symbol,TradeType.buy);
@@ -205,6 +210,8 @@ public class ModelTest {
         order.orderId="00000001";
         order.tradeStatus=TradeStatus.trading;
         when(api.queryOrder(orderInput)).thenReturn(order);
+        when(api.cancel(order)).thenReturn(order);
+
 
         model.taskForTestHook.tradeTime=10000;
         model.taskForTestHook.orderSell=orderInput;

@@ -8,7 +8,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
 /**
- * Created by caigaonian870 on 18/6/24.
+ * Created by gof on 18/6/24.
  */
 public class SignUtil {
 

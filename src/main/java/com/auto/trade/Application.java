@@ -1,10 +1,13 @@
 package com.auto.trade;
 
 
-import com.auto.model.Api;
-import com.auto.model.ApiCoinbene;
-import com.auto.model.ApiOcx;
-import com.auto.model.Model;
+import com.auto.model.common.Api;
+import com.auto.model.singleTradeSymbol.AbstractModel;
+import com.auto.model.singleTradeSymbol.LazyCancelModel;
+import com.coinbene.ApiCoinbene;
+import com.fcoin.ApiFcoin;
+import com.ocx.ApiOcx;
+import com.auto.model.singleTradeSymbol.Model;
 import com.auto.model.entity.*;
 import com.auto.trade.common.Constants;
 import com.auto.trade.entity.OrderPrice;
@@ -39,6 +42,7 @@ public class Application {
     public static int balanceFailTimes=0;
 
     public static String exchange="coinbene";
+    public static String whichModel="default";
 
 
     public static void main(String[] args) throws InterruptedException {
@@ -56,7 +60,16 @@ public class Application {
         if(exchange.equals("ocx")){
             api =new ApiOcx();
         }
-        Model model = new Model(api,tradeSymbol);
+        if(exchange.equals("fcoin")){
+            api =new ApiFcoin();
+        }
+        AbstractModel model = null;
+        if(whichModel.equals("default")){
+            model = new Model(api,tradeSymbol);
+        }else if(whichModel.equals("delayCancel")){
+            model = new LazyCancelModel(api,tradeSymbol);
+        }
+
 
         Config.totalFeeRate =caculateFreeRateFromLossRate(Config.baseFeeRate,Config.maxLossRate,new BigDecimal(1).subtract(Config.maxLossRate));
         // 公式
@@ -186,7 +199,8 @@ public class Application {
 
             if(diff.compareTo(new BigDecimal(0))  > 0){
                 // 买入
-                order = new Order(tradeSymbol, TradeType.buy,orderPrice.price,
+                order = new Order(tradeSymbol, TradeType.buy,
+                        new BigDecimal(orderPrice.price).setScale(Config.priceScale, RoundingMode.HALF_UP).toString(),
                         diff.abs().setScale(Config.amountScale, RoundingMode.HALF_UP).toString());
                 log.warn("balance Pool buy,{}",order);
                 order = api.buy(order);
@@ -196,7 +210,8 @@ public class Application {
 
             if(diff.compareTo(new BigDecimal(0))  < 0 ){
                 // 卖掉
-                order = new Order(tradeSymbol, TradeType.sell,orderPrice.price,
+                order = new Order(tradeSymbol, TradeType.sell,
+                        new BigDecimal(orderPrice.price).setScale(Config.priceScale, RoundingMode.HALF_UP).toString(),
                         diff.abs().setScale(Config.amountScale, RoundingMode.HALF_UP).toString());
                log.warn("balance Pool sell,{}",order);
                 order = api.sell(order);
@@ -226,8 +241,9 @@ public class Application {
                             balanceFailTimes++;
                             // 取消订单
                             log.warn("balance cancel  order *********");
-                            api.cancel(order);
-                            isCancel = true;
+                            if(api.cancel(order)!=null){
+                                isCancel = true;
+                            }
                         }else{
                             log.warn("balance canceling  order *********");
                         }
@@ -459,6 +475,24 @@ public class Application {
                 }
                 if ("priceScale".equals(argsStr[0])) {
                     Config.priceScale = Integer.valueOf(argsStr[1]);
+                }
+                if ("abTest".equals(argsStr[0])) {
+                    Config.abTest = String.valueOf(argsStr[1]);
+                }
+                if ("increasePriceScale".equals(argsStr[0])) {
+                    Config.increasePriceScale = Integer.valueOf(argsStr[1]);
+                }
+                if ("unit".equals(argsStr[0])) {
+                    Config.unit = Integer.valueOf(argsStr[1]);
+                }
+                if ("maxPrice".equals(argsStr[0])) {
+                    Config.maxPrice = Integer.valueOf(argsStr[1]);
+                }
+                if ("maxCancelWaitTimeMillSec".equals(argsStr[0])) {
+                    Config.maxCancelWaitTimeMillSec = Integer.valueOf(argsStr[1]);
+                }
+                if ("whichModel".equals(argsStr[0])) {
+                    whichModel= String.valueOf(argsStr[1]);
                 }
             }
         }

@@ -24,6 +24,8 @@ public class Order {
     // 实际成交数量
     public String excutedAmount;
 
+    public long lastUpdateTime;
+
     public Order(TradeSymbol symbol, TradeType tradeType, String price, String amount) {
         this.symbol = symbol;
         this.tradeType = tradeType;

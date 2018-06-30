@@ -1,10 +1,14 @@
 package com.auto.model;
 
 import com.alibaba.fastjson.JSON;
+import com.auto.model.entity.Config;
 import com.coinbene.entity.BalanceResponse;
 import com.coinbene.entity.TickerResponse;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 /**
  * Created by gof on 18/6/21.
@@ -63,6 +67,59 @@ public class ApiCoinbeneTest {
 
     @Test
     public void buildTradeContext() throws Exception {
+
+        BigDecimal buy = new BigDecimal("0.234456789").setScale(Config.priceScale, RoundingMode.CEILING);
+
+        BigDecimal increase = new BigDecimal("1")
+                .divide(new BigDecimal(10).pow(Config.priceScale),Config.priceScale, RoundingMode.CEILING)
+                .setScale(Config.priceScale, RoundingMode.CEILING);
+
+        BigDecimal sell = buy.add(increase);
+
+        Assert.assertTrue(sell.toString().equals("0.234458"));
+
+
+        buy = new BigDecimal("0.234456").setScale(Config.priceScale, RoundingMode.CEILING);
+
+        increase = new BigDecimal("1")
+                .divide(new BigDecimal(10).pow(Config.priceScale),Config.priceScale, RoundingMode.CEILING)
+                .setScale(Config.priceScale, RoundingMode.CEILING);
+
+        sell = buy.add(increase);
+
+        Assert.assertTrue(sell.toString().equals("0.234457"));
+
+        buy = new BigDecimal("10000.23").setScale(2, RoundingMode.CEILING);
+
+        increase = new BigDecimal("1")
+                .divide(new BigDecimal(10).pow(2),Config.priceScale, RoundingMode.CEILING)
+                .setScale(2, RoundingMode.CEILING);
+
+        sell = buy.add(increase);
+
+        Assert.assertTrue(sell.toString().equals("10000.24"));
+
+
+        buy = new BigDecimal("10000.231").setScale(2, RoundingMode.CEILING);
+
+        increase = new BigDecimal("1")
+                .divide(new BigDecimal(10).pow(2),Config.priceScale, RoundingMode.CEILING)
+                .setScale(2, RoundingMode.CEILING);
+
+        sell = buy.add(increase);
+
+        Assert.assertTrue(sell.toString().equals("10000.25"));
+
+
+        buy = new BigDecimal("10000.23").setScale(2, RoundingMode.CEILING);
+
+        increase = new BigDecimal("1")
+                .divide(new BigDecimal(10).pow(1),2, RoundingMode.CEILING)
+                .setScale(2, RoundingMode.CEILING);
+
+        sell = buy.add(increase);
+
+        Assert.assertTrue(sell.toString().equals("10000.33"));
     }
 
     @Test
