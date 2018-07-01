@@ -22,6 +22,9 @@ public class QuantitativeResult {
     // 	量化周期待卖数组
     public List<Element> tradingList_Sell = new ArrayList<>();
 
+    public QuantitativeResult(){
+
+    }
 
     public QuantitativeResult(Balance balanceAtStart_Target, Balance balanceAtStart_Base, Balance balanceAtEnd_Target, Balance balanceAtEnd_Base, List<Element> tradingList_Buy, List<Element> tradingList_Sell) {
         this.balanceAtStart_Target = balanceAtStart_Target;
