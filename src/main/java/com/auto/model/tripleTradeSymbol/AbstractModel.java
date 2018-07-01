@@ -1,4 +1,4 @@
-package com.auto.model.singleTradeSymbol;
+package com.auto.model.tripleTradeSymbol;
 
 import com.auto.model.common.AbstractTask;
 import com.auto.model.common.Api;
@@ -10,7 +10,10 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by gof on 18/6/29.
@@ -22,24 +25,27 @@ public abstract class AbstractModel {
 
     public Api api;
 
-    public TradeSymbol symbol;
+    public TradeSymbol symbolA;
+    public TradeSymbol symbolB;
+    public TradeSymbol symbolC;
 
-    //量化周期开始A余额快照
-    public Balance balanceAtStart_Target;
-    //量化周期开始U余额快照
-    public Balance balanceAtStart_Base;
-    //量化周期结束A余额快照
-    public Balance balanceAtEnd_Target;
-    //量化周期结束U余额快照
-    public Balance balanceAtEnd_Base;
+    //量化周期开始B1、B2、B3余额快照
+    public Balance balanceAtStart_B1;
+    public Balance balanceAtStart_B2;
+    public Balance balanceAtStart_B3;
+    //量化周期结束B1、B2、B3余额快照
+    public Balance balanceAtEnd_B1;
+    public Balance balanceAtEnd_B2;
+    public Balance balanceAtEnd_B3;
 
-    // 	量化周期待买数组
-    public List<Element> tradingList_Buy = new ArrayList<>();
-    // 	量化周期待卖数组
-    public List<Element> tradingList_Sell = new ArrayList<>();
+    // 	量化周期交易对A、B、C
+    public List<Element> tradingList_A = new ArrayList<>();
+    public List<Element> tradingList_B = new ArrayList<>();
+    public List<Element> tradingList_C = new ArrayList<>();
 
+    protected final Object listLockA = new Object();
     protected final Object listLockB = new Object();
-    protected final Object listLockS = new Object();
+    protected final Object listLockC = new Object();
 
 
     protected ExecutorService executor = new ThreadPoolExecutor(6, 20,
@@ -47,9 +53,12 @@ public abstract class AbstractModel {
             new SynchronousQueue<Runnable>());
 
 
-    public AbstractModel(Api api, TradeSymbol symbol) {
+    public AbstractModel(Api api, TradeSymbol symbolA,TradeSymbol symbolB
+            ,TradeSymbol symbolC) {
         this.api = api;
-        this.symbol=symbol;
+        this.symbolA=symbolA;
+        this.symbolB=symbolB;
+        this.symbolC=symbolC;
     }
 
     /**
@@ -98,10 +107,10 @@ public abstract class AbstractModel {
                 boolean flag = init();
                 if(flag){
                     break;
-                }else{
+                }else{zd
                     log.warn("init fail >>>");
                     Thread.sleep(60000);
-                }
+                }aa4e
 
             }catch (Exception e){
                 log.warn("init fail {}",e);

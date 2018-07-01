@@ -34,7 +34,8 @@ public class LazyCancelTradeTask extends AbstractTradeTask {
         if (orderBuy != null) {
             if(orderBuy.orderId==null){
                 log.warn("orderBuy.orderId==null");
-                elementB.tradeStatus=TradeStatus.init;
+                // fixme 状态往终态走，或者下一个状态走，不要往回走。
+                elementB.tradeStatus=TradeStatus.done;
                 elementB=null;
                 orderBuy = null;
                 return null;
@@ -94,7 +95,8 @@ public class LazyCancelTradeTask extends AbstractTradeTask {
         if (orderSell != null) {
             if(orderSell.orderId==null){
                 log.warn("orderSell.orderId==null");
-                elementS.tradeStatus=TradeStatus.init;
+                // fixme 状态往终态走，或者下一个状态走，不要往回走。
+                elementS.tradeStatus=TradeStatus.done;
                 elementS=null;
                 orderSell = null;
                 return null;
@@ -141,5 +143,9 @@ public class LazyCancelTradeTask extends AbstractTradeTask {
             }
         }
         return orderSell;
+    }
+    @Override
+    public String getTaskName() {
+        return "lazyCancelTradeTask";
     }
 }

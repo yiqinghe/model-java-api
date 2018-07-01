@@ -6,5 +6,6 @@ package com.auto.model.common;
 public interface AbstractTask {
 
     public boolean isFinish();
+    public String getTaskName();
 
 }

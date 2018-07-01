@@ -344,10 +344,12 @@ public class Application {
                     log.error("error else");
                 }
                 allAmount = allAmount.add(elementB.targetAmount);
-                index++;
+
 
             }catch (Exception e){
                 log.error("caculate excepton :{}",e);
+            }finally {
+                index++;
             }
         }
         // loss率

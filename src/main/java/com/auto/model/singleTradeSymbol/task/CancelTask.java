@@ -97,4 +97,9 @@ public class CancelTask extends Thread implements AbstractTask {
     public boolean isFinish() {
         return isFinish;
     }
+
+    @Override
+    public String getTaskName() {
+        return "cancelTask";
+    }
 }
