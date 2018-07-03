@@ -2,10 +2,13 @@ package com.auto.trade;
 
 
 import com.auto.model.common.Api;
-import com.auto.model.singleTradeSymbol.AbstractModel;
+import com.auto.model.common.ModelInterface;
 import com.auto.model.singleTradeSymbol.LazyCancelModel;
+import com.auto.model.tripleTradeSymbol.TripleGrainBase1Model;
 import com.coinbene.ApiCoinbene;
+import com.coinex.ApiCoinexForTriple;
 import com.fcoin.ApiFcoin;
+import com.fcoin.ApiFcoinForTriple;
 import com.ocx.ApiOcx;
 import com.auto.model.singleTradeSymbol.Model;
 import com.auto.model.entity.*;
@@ -63,11 +66,29 @@ public class Application {
         if(exchange.equals("fcoin")){
             api =new ApiFcoin();
         }
-        AbstractModel model = null;
+        if(exchange.equals("fcoinTriple")){
+            api =new ApiFcoinForTriple();
+        }
+        if(exchange.equals("coinexTriple")){
+            api =new ApiCoinexForTriple();
+        }
+        ModelInterface model = null;
         if(whichModel.equals("default")){
             model = new Model(api,tradeSymbol);
         }else if(whichModel.equals("delayCancel")){
             model = new LazyCancelModel(api,tradeSymbol);
+        }else if(whichModel.equals("TripleGrainBase1Model")){
+             Currency ftCurrency = Currency.ft;
+            if(exchange.equals("coinexTriple")){
+                ftCurrency = Currency.cet;
+            }
+            Currency usdtCurrency = Currency.usdt;
+            Currency ethCurrency = Currency.eth;
+
+            TradeSymbol tradeSymbolA = new TradeSymbol(ftCurrency,usdtCurrency);
+            TradeSymbol tradeSymbolB = new TradeSymbol(ftCurrency,ethCurrency);
+            TradeSymbol tradeSymbolC = new TradeSymbol(ethCurrency,usdtCurrency);
+            model = new TripleGrainBase1Model(api,tradeSymbolA,tradeSymbolB,tradeSymbolC);
         }
 
 

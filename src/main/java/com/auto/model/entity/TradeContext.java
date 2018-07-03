@@ -12,12 +12,20 @@ public class TradeContext {
     // 发起交易的卖单价格
     public String sellPrice;
 
+    // 对冲交易使用到
+    public Order orderA;
+    public Order orderB;
+    public Order orderC;
+
     @Override
     public String toString() {
         return "TradeContext{" +
                 "canTrade=" + canTrade +
                 ", buyPrice='" + buyPrice + '\'' +
                 ", sellPrice='" + sellPrice + '\'' +
+                ", orderA=" + orderA +
+                ", orderB=" + orderB +
+                ", orderC=" + orderC +
                 '}';
     }
 }

@@ -1,5 +1,7 @@
 package com.auto.trade.entity;
 
+import com.auto.model.entity.TradeSymbol;
+
 import javax.persistence.*;
 import java.util.Date;
 
@@ -18,6 +20,9 @@ public class DepthData{
 
   // 成交对
   public String symbol;
+
+  @Transient
+  public TradeSymbol tradeSymbol;
 
   public long updateId;
 

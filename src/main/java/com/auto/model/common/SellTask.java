@@ -1,5 +1,6 @@
 package com.auto.model.common;
 
+import com.auto.model.common.Api;
 import com.auto.model.entity.Order;
 
 import java.util.concurrent.Callable;

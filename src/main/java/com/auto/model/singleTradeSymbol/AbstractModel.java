@@ -2,6 +2,7 @@ package com.auto.model.singleTradeSymbol;
 
 import com.auto.model.common.AbstractTask;
 import com.auto.model.common.Api;
+import com.auto.model.common.ModelInterface;
 import com.auto.model.entity.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +16,7 @@ import java.util.concurrent.*;
 /**
  * Created by gof on 18/6/29.
  */
-public abstract class AbstractModel {
+public abstract class AbstractModel implements ModelInterface {
 
     private static final Logger log = LoggerFactory.getLogger(AbstractModel.class);
 
@@ -55,6 +56,7 @@ public abstract class AbstractModel {
     /**
      * 初始化
      */
+    @Override
     public boolean init(){
         tradingList_Buy.clear();;
         tradingList_Sell.clear();
@@ -92,6 +94,7 @@ public abstract class AbstractModel {
     /**
      * 周期开始 todo 根据一轮周期结束后的数据判断是否开启下一轮，或者自动调整参数
      */
+    @Override
     public QuantitativeResult periodStart() throws InterruptedException {
         while (true){
             try{

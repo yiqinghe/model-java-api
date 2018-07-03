@@ -26,6 +26,8 @@ public class Order {
 
     public long lastUpdateTime;
 
+    public Element element;
+
     public Order(TradeSymbol symbol, TradeType tradeType, String price, String amount) {
         this.symbol = symbol;
         this.tradeType = tradeType;

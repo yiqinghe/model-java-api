@@ -10,6 +10,7 @@ public enum Currency {
     bnb("bnb"),
     coni("coni"),
     ft("ft"),
+    cet("cet"),
     xrp("xrp");
 
     private String currency;
