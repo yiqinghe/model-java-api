@@ -432,5 +432,4 @@ public class ApiCoinex implements Api<Object> {
 
         return StringUtils.upperCase(sign);
     }
-
 }
